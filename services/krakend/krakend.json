@@ -1,0 +1,36 @@
+{
+  "version": 3,
+  "timeout": "3000ms",
+  "endpoints": [
+    {
+      "endpoint": "/v1/accounts/{account_id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/v1/accounts/{account_id}",
+          "host": [
+            "http://account-ms:3000"
+          ],
+          "encoding": "no-op",
+          "disable_host_sanitize": true
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/accounts",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/v1/accounts",
+          "host": [
+            "http://account-ms:3000"
+          ],
+          "encoding": "no-op",
+          "disable_host_sanitize": true
+        }
+      ]
+    }
+  ]
+}

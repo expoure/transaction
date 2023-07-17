@@ -1,0 +1,250 @@
+version: "3.8"
+
+networks:
+  internal-net:
+    external: true
+
+services:
+  account-db:
+    image: postgres:15.3
+    hostname: account-db
+    container_name: account-db
+    # restart: always
+    networks:
+      - internal-net
+    ports:
+      - 5432:5432
+    env_file:
+      - $PWD/services/account/.env
+    tty: true
+    volumes:
+      - ./.docker/pg-data-account:/var/lib/postgresql/data
+      - ./services/account/internal/sql/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # transaction-db:
+  #   image: postgres:15.3
+  #   hostname: transaction-db
+  #   container_name: transaction-db
+  #   restart: always
+  #   networks:
+  #     - internal-net
+  #   ports:
+  #     - 5433:5432
+  #   environment:
+  #     - POSTGRES_USER=user
+  #     - POSTGRES_PASSWORD=pass
+  #     - POSTGRES_DB=transaction
+  #   tty: true
+  #   volumes:
+  #     - ./.docker/pg-data-transaction:/var/lib/postgresql/data
+  #     - ./.docker:/docker-entrypoint-initdb.d/
+
+  # audit-db:
+  #  image: mongo
+  #  hostname: audit-db
+  #  container_name: audit-db
+  #  restart: always
+  #  networks:
+  #    - internal-net
+  #  ports:
+  #    - 27017:27017
+  #  environment:
+  #    - MONGO_INITDB_ROOT_USERNAME=root
+  #    - MONGO_INITDB_ROOT_PASSWORD=Pa55word
+  #    - MONGO_INITDB_DATABASE=db_audit
+  #    - MONGO_USERNAME=admin
+  #    - MONGO_PASSWORD=example
+  #  volumes:
+  #    - ./.docker/mongo-data:/data/db
+  #    - ./.docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+  # redis:
+  #   container_name: redis
+  #   image: redis:alpine
+  #   networks:
+  #     - internal-net
+  #   ports:
+  #     - "6379:6379"
+
+  account-ms:
+    container_name: account-ms
+    hostname: account
+    build:
+      context: services/account
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - $PWD/services/account:/usr/src/app
+    env_file:
+      - $PWD/services/account/.env
+    networks:
+      - internal-net
+    ports:
+      - 3000:3000
+    depends_on:
+      - account-db
+
+  # report-generator-hub:
+  #   container_name: report-generator-hub
+  #   hostname: report-generator-hub
+  #   build:
+  #     context: services/report-generator-hub
+  #     dockerfile: Dockerfile
+  #     target: development
+  #   volumes:
+  #     - $PWD/services/report-generator-hub:/usr/src/app
+  #   environment:
+  #     - PORT=3043
+  #     - CATALOG_URL=postgresql://catalog:catalog@catalog/catalog
+  #     - KAFKA_URL=kafka1:9092,kafka2:9093
+  #     - AWS_ACCESS_KEY=AKIASZXNBIEMA6RFUBDD
+  #     - AWS_SECRET_ACCESS_KEY=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
+  #     - AWS_S3_REGION=us-east-1
+  #     - AWS_S3_BUCKET=mk-next-report-hub-stg
+  #     - KEYCLOAK_PUBLIC_KEY=-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiXntcqGAzQYyXyemERAhEyXJgLvFOuObHl7jPYencG8RprPKbytvciittP+s00kXPJulz1nyL8fBURT2qBcLTfQWPIqBelEGtbgZw8yud3G3K789uwzG3NbWp73bGNluS2lLCsDigZqeILPDizCpeG1K5EVDvSgaIz2Fmrus9rpKzzjUELy/z4KCEOqmLrGZyDnqD1HYEuLzGj7h2bCVxy+mZuBl88zqdg2BL4299Ef/EC8Hi7R9Amo861QfGPtpf2CLV3cxgArPK6RPSDfmEv+yABlNhnbcttlubEemKHtFEVkShjfKpUtKVqydcZKxp+isP+k20TGY8Asi69TIywIDAQAB\n-----END PUBLIC KEY-----
+  #   networks:
+  #     - internal-net
+  #   ports:
+  #     - 3043:3043
+  #   depends_on:
+  #     - postgres
+  #     - catalog
+  #     - kafka1
+  #     - kafka2
+  #     - kafka-ui      
+
+  # kafka1:
+  #   container_name: kafka1
+  #   hostname: kafka1
+  #   image: wurstmeister/kafka:latest
+  #   environment:
+  #     - KAFKA_BROKER_ID=1
+  #     - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+  #     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+  #     - KAFKA_LISTENERS=PLAINTEXT://:9092
+  #     - KAFKA_ADVERTISED_PORT=9092
+  #     - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka1:9092
+  #     - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+  #     - KAFKA_NUM_PARTITIONS=10
+  #   networks:
+  #     - internal-net
+  #   ports:
+  #     - 9092:9092
+  #   depends_on:
+  #     - zookeeper
+
+  # kafka2:
+  #   container_name: kafka2
+  #   hostname: kafka2
+  #   image: wurstmeister/kafka:latest
+  #   environment:
+  #     - KAFKA_BROKER_ID=2
+  #     - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+  #     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+  #     - KAFKA_LISTENERS=PLAINTEXT://:9093
+  #     - KAFKA_ADVERTISED_PORT=9093
+  #     - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka2:9093
+  #     - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+  #     - KAFKA_NUM_PARTITIONS=10
+  #   networks:
+  #     - internal-net
+  #   ports:
+  #     - 9093:9093
+  #   depends_on:
+  #     - zookeeper
+
+  # zookeeper:
+  #   container_name: zookeeper
+  #   hostname: zookeeper
+  #   image: zookeeper:latest
+  #   environment:
+  #     - ZOOKEEPER_CLIENT_PORT=2181
+  #     - ALLOW_ANONYMOUS_LOGIN=yes
+  #     - ZOOKEEPER_ID=1
+  #     - ZOOKEEPER_SERVER=zookeeper
+  #   networks:
+  #     - internal-net
+  #   ports:
+  #     - 2181:2181
+
+  # kafka-ui:
+  #   container_name: kafka-ui
+  #   hostname: kafka-ui
+  #   image: provectuslabs/kafka-ui:latest
+  #   restart: always
+  #   volumes:
+  #     - ./.docker/kafkaui/roles.yml:/roles.yml
+  #   environment:
+  #     - spring.config.additional-location= /roles.yml
+  #     - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka1:9092,kafka2:9093
+  #     - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+  #     - KAFKA_CLUSTERS_0_NAME=local
+  #     - AUTH_TYPE=OAUTH2
+  #     - AUTH_OAUTH2_CLIENT_GOOGLE_PROVIDER=google
+  #     - AUTH_OAUTH2_CLIENT_GOOGLE_CLIENTID=768268291759-jaj4l2uis82d3ii03rao178lr07ugduo.apps.googleusercontent.com
+  #     - AUTH_OAUTH2_CLIENT_GOOGLE_CLIENTSECRET=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
+  #     - AUTH_OAUTH2_CLIENT_GOOGLE_USER-NAME-ATTRIBUTE=email
+  #     - AUTH_OAUTH2_CLIENT_GOOGLE_USERNAMEATTRIBUTE=email
+  #     - AUTH_OAUTH2_CLIENT_GOOGLE_USER_NAME_ATTRIBUTE=email
+  #     - AUTH_OAUTH2_CLIENT_GOOGLE_CUSTOM-PARAMS_TYPE=google
+  #     - AUTH_OAUTH2_CLIENT_GOOGLE_CUSTOM-PARAMS_ALLOWEDDOMAIN=mknext.com.br
+  #     # - ---------------------------------------------
+  #     - AUTH_OAUTH2_CLIENT_GITHUB_PROVIDER=github
+  #     - AUTH_OAUTH2_CLIENT_GITHUB_CLIENTID=c789fae5f1b05b50ce7e
+  #     - AUTH_OAUTH2_CLIENT_GITHUB_CLIENTSECRET=5030b8730ec6f7f4b4690836f46c96b2a7cdde7f
+  #     - AUTH_OAUTH2_CLIENT_GITHUB_CUSTOM-PARAMS_TYPE=github
+  #     - AUTH_OAUTH2_CLIENT_GITHUB_ORGANIZATION=login
+  #     - AUTH_OAUTH2_CLIENT_GITHUB_ORGANIZATION_ATTRIBUTE=https://github.com/MK-Solutions-LTDA
+  #     - AUTH_OAUTH2_CLIENT_GITHUB_SCOPE=read:org
+  #     - AUTH_OAUTH2_CLIENT_GITHUB_CLIENT_NAME=Github
+  #   networks:
+  #     - internal-net
+  #   ports:
+  #     - 8080:8080
+  #   depends_on:
+  #       - zookeeper
+  #       - kafka1
+  #       - kafka2
+
+  api-gateway:
+    image: devopsfaith/krakend:latest
+    volumes:
+      - ./services/krakend/krakend.json:/etc/krakend/krakend.json
+    networks:
+      - internal-net
+    ports:
+      - "8080:8080"
+
+  authentication:
+    container_name: authentication
+    hostname: authentication
+    build:
+      context: services/keycloak
+      dockerfile: Dockerfile
+    command:
+      - "start-dev --import-realm"
+    environment:
+      - KC_HOSTNAME_STRICT=false
+      - KC_PROXY=edge
+      - KC_FEATURES=scripts
+    env_file:
+      - $PWD/services/keycloak/.env
+    networks:
+      - internal-net
+    ports:
+      - 9092:8080
+    depends_on:
+      - keycloak-db
+
+  keycloak-db:
+    image: postgres:14
+    hostname: keycloak-db
+    container_name: keycloak-db
+    volumes:
+      - ./.docker/pg-data-keycloak:/var/lib/postgresql/data
+    env_file:
+      - $PWD/services/keycloak/.env
+    networks:
+      - internal-net
+    ports:
+      - 5436:5432
