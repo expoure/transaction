@@ -8,13 +8,14 @@ import (
 	"database/sql"
 	"time"
 
+	custom_types "github.com/expoure/pismo/account/internal/configuration/database/custom_types"
 	"github.com/google/uuid"
 )
 
 type Account struct {
 	ID             uuid.UUID
 	DocumentNumber string
-	Balance        string
+	Balance        *custom_types.Balance
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      sql.NullTime

@@ -16,7 +16,7 @@ sql: [
         out: "/internal/configuration/database/sqlc",
         overrides: [
           {
-            db_type: "string",
+            db_type: "balance",
             go_type: { 
               import: "github.com/expoure/pismo/account/internal/configuration/database/custom_types",
               package: "custom_types",
