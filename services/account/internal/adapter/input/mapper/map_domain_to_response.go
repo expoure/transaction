@@ -11,8 +11,13 @@ func MapDomainToResponse(
 	response := response.AccountResponse{
 		ID:             accountDomain.ID.String(),
 		DocumentNumber: accountDomain.DocumentNumber,
-		CreatedAt:      accountDomain.CreatedAt.String(),
-		UpdatedAt:      accountDomain.UpdatedAt.String(),
+		Balance: response.BalanceResponse{
+			Amount:          accountDomain.Balance.Display(),
+			Currency:        accountDomain.Balance.Currency().Code,
+			SmallUnitAmount: accountDomain.Balance.Amount(),
+		},
+		CreatedAt: accountDomain.CreatedAt.String(),
+		UpdatedAt: accountDomain.UpdatedAt.String(),
 	}
 
 	if accountDomain.DeletedAt != nil {

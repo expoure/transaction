@@ -7,4 +7,4 @@ SELECT * FROM account
 WHERE document_number = $1 LIMIT 1;
 
 -- name: CreateAccount :one
-INSERT INTO account (document_number) VALUES ($1) RETURNING *;
+INSERT INTO account (document_number, balance) VALUES ($1, (500, 'BRL')) RETURNING *;

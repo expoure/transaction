@@ -1,9 +1,31 @@
 version: "2"
-sql:
-  - engine: "postgresql"
-    queries: "/internal/sql/queries.sql"
-    schema: "/internal/sql/schema/init.sql"
-    gen:
-      go:
-        package: "sqlc"
-        out: "/internal/configuration/database/sqlc"
+project:
+    id: ""
+cloud:
+    organization: ""
+    project: ""
+    hostname: ""
+sql: [
+  { 
+    engine: "postgresql",
+    queries: "/internal/sql/queries.sql",
+    schema: "/internal/sql/schema/init.sql",
+    gen: { 
+      go: { 
+        package: "sqlc", 
+        out: "/internal/configuration/database/sqlc",
+        overrides: [
+          {
+            db_type: "string",
+            go_type: { 
+              import: "github.com/expoure/pismo/account/internal/configuration/database/custom_types",
+              package: "custom_types",
+              type: "Balance",
+              pointer: true
+            }
+          }
+        ] 
+      } 
+    } 
+  }
+]

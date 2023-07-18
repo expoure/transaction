@@ -1,5 +1,11 @@
 # Título
 
+## ordem de prioridade:
+    - Adicionar balance no account + mapper do Balance
+    - Criar transaction microservice
+    - Adicionar kafka
+    - Testes
+
 ### Tecnologias usadas:
 - Docker
 - Golang
