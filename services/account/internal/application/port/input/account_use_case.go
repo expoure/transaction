@@ -17,4 +17,9 @@ type AccountDomainService interface {
 	FindAccountByDocumentNumberServices(
 		documentNumber string,
 	) (*domain.AccountDomain, *rest_errors.RestErr)
+
+	UpdateAccountBalanceByIDServices(
+		id uuid.UUID,
+		transactionAmount int64,
+	) *rest_errors.RestErr
 }

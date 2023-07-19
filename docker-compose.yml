@@ -9,7 +9,6 @@ services:
     image: postgres:15.3
     hostname: account-db
     container_name: account-db
-    # restart: always
     networks:
       - internal-net
     ports:
@@ -21,23 +20,22 @@ services:
       - ./.docker/pg-data-account:/var/lib/postgresql/data
       - ./services/account/internal/sql/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  # transaction-db:
-  #   image: postgres:15.3
-  #   hostname: transaction-db
-  #   container_name: transaction-db
-  #   restart: always
-  #   networks:
-  #     - internal-net
-  #   ports:
-  #     - 5433:5432
-  #   environment:
-  #     - POSTGRES_USER=user
-  #     - POSTGRES_PASSWORD=pass
-  #     - POSTGRES_DB=transaction
-  #   tty: true
-  #   volumes:
-  #     - ./.docker/pg-data-transaction:/var/lib/postgresql/data
-  #     - ./.docker:/docker-entrypoint-initdb.d/
+  transaction-db:
+    image: postgres:15.3
+    hostname: transaction-db
+    container_name: transaction-db
+    networks:
+      - internal-net
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=transaction
+    tty: true
+    volumes:
+      - ./.docker/pg-data-transaction:/var/lib/postgresql/data
+      - ./services/transaction/internal/sql/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   # audit-db:
   #  image: mongo
@@ -84,34 +82,23 @@ services:
     depends_on:
       - account-db
 
-  # report-generator-hub:
-  #   container_name: report-generator-hub
-  #   hostname: report-generator-hub
-  #   build:
-  #     context: services/report-generator-hub
-  #     dockerfile: Dockerfile
-  #     target: development
-  #   volumes:
-  #     - $PWD/services/report-generator-hub:/usr/src/app
-  #   environment:
-  #     - PORT=3043
-  #     - CATALOG_URL=postgresql://catalog:catalog@catalog/catalog
-  #     - KAFKA_URL=kafka1:9092,kafka2:9093
-  #     - AWS_ACCESS_KEY=AKIASZXNBIEMA6RFUBDD
-  #     - AWS_SECRET_ACCESS_KEY=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
-  #     - AWS_S3_REGION=us-east-1
-  #     - AWS_S3_BUCKET=mk-next-report-hub-stg
-  #     - KEYCLOAK_PUBLIC_KEY=-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiXntcqGAzQYyXyemERAhEyXJgLvFOuObHl7jPYencG8RprPKbytvciittP+s00kXPJulz1nyL8fBURT2qBcLTfQWPIqBelEGtbgZw8yud3G3K789uwzG3NbWp73bGNluS2lLCsDigZqeILPDizCpeG1K5EVDvSgaIz2Fmrus9rpKzzjUELy/z4KCEOqmLrGZyDnqD1HYEuLzGj7h2bCVxy+mZuBl88zqdg2BL4299Ef/EC8Hi7R9Amo861QfGPtpf2CLV3cxgArPK6RPSDfmEv+yABlNhnbcttlubEemKHtFEVkShjfKpUtKVqydcZKxp+isP+k20TGY8Asi69TIywIDAQAB\n-----END PUBLIC KEY-----
-  #   networks:
-  #     - internal-net
-  #   ports:
-  #     - 3043:3043
-  #   depends_on:
-  #     - postgres
-  #     - catalog
-  #     - kafka1
-  #     - kafka2
-  #     - kafka-ui      
+  transaction-ms:
+    container_name: transaction-ms
+    hostname: transaction
+    build:
+      context: services/transaction
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - $PWD/services/transaction:/usr/src/app
+    env_file:
+      - $PWD/services/transaction/.env
+    networks:
+      - internal-net
+    ports:
+      - 3001:3001
+    depends_on:
+      - transaction-db
 
   # kafka1:
   #   container_name: kafka1

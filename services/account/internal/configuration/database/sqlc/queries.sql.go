@@ -8,11 +8,12 @@ package sqlc
 import (
 	"context"
 
+	custom_types "github.com/expoure/pismo/account/internal/configuration/database/custom_types"
 	"github.com/google/uuid"
 )
 
 const createAccount = `-- name: CreateAccount :one
-INSERT INTO account (document_number, balance) VALUES ($1, (500, 'BRL')) RETURNING id, document_number, balance, created_at, updated_at, deleted_at
+INSERT INTO account (document_number, balance) VALUES ($1, (0,'BRL')) RETURNING id, document_number, balance, created_at, updated_at, deleted_at
 `
 
 func (q *Queries) CreateAccount(ctx context.Context, documentNumber string) (Account, error) {
@@ -27,6 +28,18 @@ func (q *Queries) CreateAccount(ctx context.Context, documentNumber string) (Acc
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const findAccountBalanceById = `-- name: FindAccountBalanceById :one
+SELECT balance FROM account
+WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) FindAccountBalanceById(ctx context.Context, id uuid.UUID) (*custom_types.Money, error) {
+	row := q.db.QueryRowContext(ctx, findAccountBalanceById, id)
+	var balance *custom_types.Money
+	err := row.Scan(&balance)
+	return balance, err
 }
 
 const findAccountByDocumentNumber = `-- name: FindAccountByDocumentNumber :one

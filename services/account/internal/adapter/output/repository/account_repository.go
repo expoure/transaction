@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 
+	"github.com/Rhymond/go-money"
 	"github.com/expoure/pismo/account/internal/adapter/output/mapper"
 	"github.com/expoure/pismo/account/internal/application/domain"
 	"github.com/expoure/pismo/account/internal/application/port/output"
@@ -16,14 +18,17 @@ import (
 
 func NewAccountRepository(
 	queries *sqlc.Queries,
+	databaseCon *sql.DB,
 ) output.AccountPort {
 	return &accountRepositoryImpl{
 		queries,
+		databaseCon,
 	}
 }
 
 type accountRepositoryImpl struct {
-	queries *sqlc.Queries
+	queries     *sqlc.Queries
+	databaseCon *sql.DB
 }
 
 func (ar *accountRepositoryImpl) CreateAccount(
@@ -32,7 +37,11 @@ func (ar *accountRepositoryImpl) CreateAccount(
 	logger.Info("Init createAccount repository",
 		zap.String("journey", "createAccount"))
 
-	result, err := ar.queries.CreateAccount(context.Background(), accountDomain.DocumentNumber)
+	result, err := ar.queries.CreateAccount(
+		context.Background(),
+		accountDomain.DocumentNumber,
+	)
+
 	if err != nil {
 		logger.Error("Error trying to create account",
 			err,
@@ -83,4 +92,42 @@ func (ar *accountRepositoryImpl) FindAccountByID(
 	}
 
 	return mapper.MapEntityToDomain(result), nil
+}
+
+func (ar *accountRepositoryImpl) UpdateAccountBalanceByID(
+	id uuid.UUID,
+	transactionAmount int64,
+) *rest_errors.RestErr {
+	logger.Info("Init UpdateAccountBalance repository",
+		zap.String("journey", "UpdateAccountBalance"))
+
+	// tenho que colocar um mutex aqui
+	_, err := ar.databaseCon.Exec("UPDATE account SET balance = ($1, $2) WHERE id = $3", transactionAmount, "BRL", id)
+
+	if err != nil {
+		logger.Error("Error trying to FindAccountByID",
+			err,
+			zap.String("journey", "FindAccountByID"))
+		return rest_errors.NewInternalServerError(err.Error())
+	}
+	return nil
+}
+
+func (ar *accountRepositoryImpl) FindAccountBalanceByID(id uuid.UUID) (*money.Money, *rest_errors.RestErr) {
+	logger.Info("Init FindAccountBalanceByID repository",
+		zap.String("journey", "FindAccountBalanceByID"))
+
+	result, err := ar.queries.FindAccountBalanceById(
+		context.Background(),
+		id,
+	)
+
+	if err != nil {
+		logger.Error("Error trying to FindAccountBalanceByID",
+			err,
+			zap.String("journey", "FindAccountBalanceByID"))
+		return nil, rest_errors.NewInternalServerError(err.Error())
+	}
+
+	return money.New(result.Amount, result.Currency), nil
 }

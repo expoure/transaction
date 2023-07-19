@@ -16,11 +16,11 @@ sql: [
         out: "/internal/configuration/database/sqlc",
         overrides: [
           {
-            db_type: "balance",
+            db_type: "cmoney",
             go_type: { 
               import: "github.com/expoure/pismo/account/internal/configuration/database/custom_types",
               package: "custom_types",
-              type: "Balance",
+              type: "Money",
               pointer: true
             }
           }

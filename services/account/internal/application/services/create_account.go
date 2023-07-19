@@ -1,8 +1,6 @@
 package service
 
 import (
-	"log"
-
 	"github.com/expoure/pismo/account/internal/application/domain"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
 	"github.com/expoure/pismo/account/internal/configuration/rest_errors"
@@ -16,7 +14,7 @@ func (ad *accountDomainService) CreateAccountServices(
 		zap.String("journey", "createAccount"))
 
 	account, _ := ad.FindAccountByDocumentNumberServices(accountDomain.DocumentNumber)
-	log.Println(account)
+
 	if account != nil {
 		return nil, rest_errors.NewBadRequestError("This document number is already registered")
 	}
@@ -28,7 +26,6 @@ func (ad *accountDomainService) CreateAccountServices(
 			zap.String("journey", "createAccount"))
 		return nil, err
 	}
-	// Criar no keycloak usando o id retornado
 	// criar evento de account_created
 
 	logger.Info(

@@ -1,10 +1,12 @@
 # Título
 
 ## ordem de prioridade:
-    - Adicionar balance no account + mapper do Balance
+    - Adicionar balance no account + mapper do Balance [x]
     - Criar transaction microservice
     - Adicionar kafka
     - Testes
+    - Swagger
+    - Adicionar collection do insomnia
 
 ### Tecnologias usadas:
 - Docker

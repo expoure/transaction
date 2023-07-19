@@ -15,7 +15,7 @@ import (
 type Account struct {
 	ID             uuid.UUID
 	DocumentNumber string
-	Balance        *custom_types.Balance
+	Balance        *custom_types.Money
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      sql.NullTime

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -26,18 +27,17 @@ func main() {
 		return
 	}
 
-	database, err := postgres.NewPostgresConnection(context.Background())
+	databaseCon, err := postgres.NewPostgresConnection(context.Background())
+
 	if err != nil {
 		log.Fatalf(
 			"Error trying to connect to database, error=%s \n",
 			err.Error())
 		return
 	}
-	defer database.Close()
+	defer databaseCon.Close()
 
-	queries := sqlc.New(database)
-
-	accountController := initDependencies(queries)
+	accountController := initDependencies(databaseCon)
 
 	router := gin.Default()
 	group := router.Group("/v1/accounts")
@@ -53,9 +53,10 @@ func main() {
 }
 
 func initDependencies(
-	queries *sqlc.Queries,
+	databaseCon *sql.DB,
 ) controller.AccountControllerInterface {
-	accountRepo := repository.NewAccountRepository(queries)
+	queries := sqlc.New(databaseCon)
+	accountRepo := repository.NewAccountRepository(queries, databaseCon)
 	accountService := service.NewAccountDomainService(accountRepo)
 	return controller.NewAccountControllerInterface(accountService)
 }
