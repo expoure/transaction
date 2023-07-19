@@ -6,13 +6,16 @@ import (
 )
 
 func NewTransactionDomainService(
-	transactionRepository output.TransactionPort,
+	transactionRepository output.TransactionRepository,
+	transactionProducer output.TransactionProducer,
 ) input.TransactionDomainService {
 	return &transactionDomainService{
 		transactionRepository,
+		transactionProducer,
 	}
 }
 
 type transactionDomainService struct {
-	repository output.TransactionPort
+	repository output.TransactionRepository
+	producer   output.TransactionProducer
 }

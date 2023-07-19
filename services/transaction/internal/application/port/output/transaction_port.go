@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type TransactionPort interface {
+type TransactionRepository interface {
 	CreateTransaction(
 		transactionDomain domain.TransactionDomain,
 	) (*domain.TransactionDomain, *rest_errors.RestErr)
@@ -14,4 +14,10 @@ type TransactionPort interface {
 	ListTransactionsByAccountID(
 		accoountId uuid.UUID,
 	) (*[]domain.TransactionDomain, *rest_errors.RestErr)
+}
+
+type TransactionProducer interface {
+	TransactionCreated(
+		transactionDomain domain.TransactionDomain,
+	)
 }

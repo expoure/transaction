@@ -7,13 +7,16 @@ import (
 	"log"
 	"os"
 
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/expoure/pismo/transaction/internal/adapter/input/controller"
 	"github.com/expoure/pismo/transaction/internal/adapter/input/controller/routes"
+	"github.com/expoure/pismo/transaction/internal/adapter/output/producer"
 	"github.com/expoure/pismo/transaction/internal/adapter/output/repository"
 	service "github.com/expoure/pismo/transaction/internal/application/services"
 	"github.com/expoure/pismo/transaction/internal/configuration/database/postgres"
 	"github.com/expoure/pismo/transaction/internal/configuration/database/sqlc"
 	"github.com/expoure/pismo/transaction/internal/configuration/logger"
+	"github.com/expoure/pismo/transaction/internal/configuration/message"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -36,7 +39,10 @@ func main() {
 	}
 	defer databaseCon.Close()
 
-	transactionController := initDependencies(databaseCon)
+	producer := message.GetKafkaProducer()
+	defer message.CloseKafkaConnections()
+
+	transactionController := initDependencies(databaseCon, producer)
 
 	router := gin.Default()
 	group := router.Group("/v1/transactions")
@@ -53,9 +59,11 @@ func main() {
 
 func initDependencies(
 	databaseConn *sql.DB,
+	messageProducer *kafka.Producer,
 ) controller.TransactionControllerInterface {
 	queries := sqlc.New(databaseConn)
 	transactionRepo := repository.NewTransactionRepository(queries, databaseConn)
-	transactionService := service.NewTransactionDomainService(transactionRepo)
+	transactionProducer := producer.NewTransactionProducer(messageProducer)
+	transactionService := service.NewTransactionDomainService(transactionRepo, transactionProducer)
 	return controller.NewTransactionControllerInterface(transactionService)
 }

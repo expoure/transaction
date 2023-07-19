@@ -16,10 +16,21 @@ import (
 	"go.uber.org/zap"
 )
 
+const CREATE_TRANSACTION_RETURNING_SQL = `
+	INSERT INTO transaction (
+		account_id,
+		operation_type_id,
+		event_date,
+		amount
+	) 
+	VALUES ($1, $2, $3, ($4, $5)) 
+	RETURNING id, account_id, operation_type_id, event_date, amount
+`
+
 func NewTransactionRepository(
 	queries *sqlc.Queries,
 	databaseCon *sql.DB,
-) output.TransactionPort {
+) output.TransactionRepository {
 	return &transactionRepositoryImpl{
 		queries,
 		databaseCon,
@@ -37,8 +48,9 @@ func (tr *transactionRepositoryImpl) CreateTransaction(
 	logger.Info("Init CreateTransaction repository",
 		zap.String("journey", "createTransaction"))
 
-	row, err := tr.databaseCon.Query(
-		"INSERT INTO transactions (account_id, operation_type_id, event_date, amount) VALUES ($1, $2, $3, ($4, $5))",
+	row := tr.databaseCon.QueryRowContext(
+		context.Background(),
+		CREATE_TRANSACTION_RETURNING_SQL,
 		transactionDomain.AccountID,
 		transactionDomain.OperationTypeID,
 		transactionDomain.EventDate,
@@ -48,7 +60,7 @@ func (tr *transactionRepositoryImpl) CreateTransaction(
 
 	var transaction entity.TransactionEntity
 
-	err = row.Scan(
+	err := row.Scan(
 		&transaction.ID,
 		&transaction.AccountID,
 		&transaction.OperationTypeID,

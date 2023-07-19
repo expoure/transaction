@@ -1,10 +1,4 @@
 version: "2"
-project:
-    id: ""
-cloud:
-    organization: ""
-    project: ""
-    hostname: ""
 sql: [
   { 
     engine: "postgresql",
