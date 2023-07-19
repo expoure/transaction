@@ -1,9 +1,8 @@
 package producer
 
 import (
-	"encoding/json"
-
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/expoure/pismo/transaction/internal/adapter/output/mapper"
 	"github.com/expoure/pismo/transaction/internal/application/domain"
 	"github.com/expoure/pismo/transaction/internal/application/port/output"
 )
@@ -23,15 +22,14 @@ type transactionProducerImpl struct {
 }
 
 func (tp *transactionProducerImpl) TransactionCreated(transactionDomain domain.TransactionDomain) {
-	transactionJson, _ := json.Marshal(transactionDomain)
-
+	transactionJson := mapper.MapDomainToJson(transactionDomain)
 	tp.kafka.Produce(
 		&kafka.Message{
 			TopicPartition: kafka.TopicPartition{
 				Topic:     &TRANSACTION_CREATED_TOPIC,
 				Partition: kafka.PartitionAny,
 			},
-			Value: []byte(transactionJson),
+			Value: []byte(*transactionJson),
 		},
 		nil,
 	)

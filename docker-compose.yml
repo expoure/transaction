@@ -99,7 +99,7 @@ services:
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ZOOKEEPER_CONNECT=zook:2181
       - KAFKA_LISTENERS=PLAINTEXT://:9092
       - KAFKA_ADVERTISED_PORT=9092
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://bazuka:9092
@@ -110,7 +110,7 @@ services:
     ports:
       - 9092:9092
     depends_on:
-      - zookeeper
+      - zook
 
   zook:
     container_name: zookeeper
@@ -126,44 +126,22 @@ services:
     ports:
       - 2181:2181
 
-  # kafka-ui:
-  #   container_name: kafka-ui
-  #   hostname: kafka-ui
-  #   image: provectuslabs/kafka-ui:latest
-  #   restart: always
-  #   volumes:
-  #     - ./.docker/kafkaui/roles.yml:/roles.yml
-  #   environment:
-  #     - spring.config.additional-location= /roles.yml
-  #     - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka1:9092,kafka2:9093
-  #     - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
-  #     - KAFKA_CLUSTERS_0_NAME=local
-  #     - AUTH_TYPE=OAUTH2
-  #     - AUTH_OAUTH2_CLIENT_GOOGLE_PROVIDER=google
-  #     - AUTH_OAUTH2_CLIENT_GOOGLE_CLIENTID=768268291759-jaj4l2uis82d3ii03rao178lr07ugduo.apps.googleusercontent.com
-  #     - AUTH_OAUTH2_CLIENT_GOOGLE_CLIENTSECRET=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
-  #     - AUTH_OAUTH2_CLIENT_GOOGLE_USER-NAME-ATTRIBUTE=email
-  #     - AUTH_OAUTH2_CLIENT_GOOGLE_USERNAMEATTRIBUTE=email
-  #     - AUTH_OAUTH2_CLIENT_GOOGLE_USER_NAME_ATTRIBUTE=email
-  #     - AUTH_OAUTH2_CLIENT_GOOGLE_CUSTOM-PARAMS_TYPE=google
-  #     - AUTH_OAUTH2_CLIENT_GOOGLE_CUSTOM-PARAMS_ALLOWEDDOMAIN=mknext.com.br
-  #     # - ---------------------------------------------
-  #     - AUTH_OAUTH2_CLIENT_GITHUB_PROVIDER=github
-  #     - AUTH_OAUTH2_CLIENT_GITHUB_CLIENTID=c789fae5f1b05b50ce7e
-  #     - AUTH_OAUTH2_CLIENT_GITHUB_CLIENTSECRET=5030b8730ec6f7f4b4690836f46c96b2a7cdde7f
-  #     - AUTH_OAUTH2_CLIENT_GITHUB_CUSTOM-PARAMS_TYPE=github
-  #     - AUTH_OAUTH2_CLIENT_GITHUB_ORGANIZATION=login
-  #     - AUTH_OAUTH2_CLIENT_GITHUB_ORGANIZATION_ATTRIBUTE=https://github.com/MK-Solutions-LTDA
-  #     - AUTH_OAUTH2_CLIENT_GITHUB_SCOPE=read:org
-  #     - AUTH_OAUTH2_CLIENT_GITHUB_CLIENT_NAME=Github
-  #   networks:
-  #     - internal-net
-  #   ports:
-  #     - 8080:8080
-  #   depends_on:
-  #       - zookeeper
-  #       - kafka1
-  #       - kafka2
+  kafkaui:
+    container_name: kafka-ui
+    hostname: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+      - KAFKA_CLUSTERS_0_NAME=local
+    networks:
+      - internal-net
+    ports:
+      - 8081:8080
+    depends_on:
+        - zook
+        - bazuka
 
   api-gateway:
     image: devopsfaith/krakend:latest

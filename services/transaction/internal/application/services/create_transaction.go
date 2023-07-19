@@ -22,6 +22,7 @@ func (td *transactionDomainService) CreateTransactionServices(
 		return nil, err
 	}
 	// criar evento de transaction_created
+	td.producer.TransactionCreated(*transaction)
 
 	logger.Info(
 		"CreateTransaction service executed successfully",

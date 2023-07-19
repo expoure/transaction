@@ -7,6 +7,8 @@
     - Testes + validações de negócio
     - Swagger
     - Adicionar collection do insomnia
+    - Criar auth com jwt
+    - Criar interface pro producer kafka/qualquer outro
 
 ### Tecnologias usadas:
 - Docker
