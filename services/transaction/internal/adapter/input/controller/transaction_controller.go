@@ -2,9 +2,12 @@ package controller
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/Rhymond/go-money"
 	"github.com/expoure/pismo/transaction/internal/adapter/input/mapper"
 	"github.com/expoure/pismo/transaction/internal/adapter/input/model/request"
+	"github.com/expoure/pismo/transaction/internal/adapter/input/model/response"
 	"github.com/expoure/pismo/transaction/internal/application/domain"
 	"github.com/expoure/pismo/transaction/internal/application/port/input"
 	"github.com/expoure/pismo/transaction/internal/configuration/logger"
@@ -17,7 +20,7 @@ import (
 )
 
 func NewTransactionControllerInterface(
-	serviceInterface input.AccountDomainService,
+	serviceInterface input.TransactionDomainService,
 ) TransactionControllerInterface {
 	return &transactionControllerImpl{
 		service: serviceInterface,
@@ -30,34 +33,38 @@ type TransactionControllerInterface interface {
 }
 
 type transactionControllerImpl struct {
-	service input.AccountDomainService
+	service input.TransactionDomainService
 }
 
 func (ac *transactionControllerImpl) CreateTransaction(c *gin.Context) {
-	logger.Info("Init Account controller",
-		zap.String("journey", "createAccount"),
+	logger.Info("Init Transaction controller",
+		zap.String("journey", "createTransaction"),
 	)
-	var accountRequest request.AccountRequest
+	var transactionRequest request.TransactionRequest
 
-	if err := c.ShouldBindJSON(&accountRequest); err != nil {
-		logger.Error("Error trying to validate account info", err,
-			zap.String("journey", "createAccount"))
-		errRest := validation.ValidateAccountError(err)
+	if err := c.ShouldBindJSON(&transactionRequest); err != nil {
+		logger.Error("Error trying to validate transaction info", err,
+			zap.String("journey", "createTransaction"))
+		errRest := validation.ValidateTransactionError(err)
 
 		c.JSON(errRest.Code, errRest)
 		return
 	}
 
-	accountDomain := domain.TransactionDomain{
-		DocumentNumber: accountRequest.DocumentNumber,
+	accountId, _ := uuid.Parse(transactionRequest.AccountID)
+	transactionDomain := domain.TransactionDomain{
+		AccountID:       accountId,
+		OperationTypeID: transactionRequest.OperationTypeID,
+		EventDate:       time.Now(),
+		Amount:          money.NewFromFloat(transactionRequest.Amount, money.BRL),
 	}
 
-	domainResult, err := ac.service.CreateAccountServices(accountDomain)
+	domainResult, err := ac.service.CreateTransactionServices(transactionDomain)
 	if err != nil {
 		logger.Error(
-			"Error trying to call CreateAccount service",
+			"Error trying to call CreateTransaction service",
 			err,
-			zap.String("journey", "createAccount"))
+			zap.String("journey", "createTransaction"))
 		c.JSON(err.Code, err)
 		return
 	}
@@ -68,17 +75,16 @@ func (ac *transactionControllerImpl) CreateTransaction(c *gin.Context) {
 }
 
 func (uc *transactionControllerImpl) ListTransaction(c *gin.Context) {
-	logger.Info("Init findAccountByID controller",
-		zap.String("journey", "findAccountByID"),
+	logger.Info("Init ListTransaction controller",
+		zap.String("journey", "ListTransaction"),
 	)
 
-	accountId := c.Param("id")
-
+	accountId := c.Query("accountId")
 	accountUuid, uuidErr := uuid.Parse(accountId)
 	if uuidErr != nil {
 		logger.Error("Error trying to validate id",
 			uuidErr,
-			zap.String("journey", "findAccountByID"),
+			zap.String("journey", "ListTransaction"),
 		)
 		errorMessage := rest_errors.NewBadRequestError(
 			"id is not a valid uuid",
@@ -88,20 +94,26 @@ func (uc *transactionControllerImpl) ListTransaction(c *gin.Context) {
 		return
 	}
 
-	accountDomain, err := uc.service.FindAccountByIDServices(accountUuid)
+	transactionsDomain, err := uc.service.ListTransactionsService(accountUuid)
 	if err != nil {
-		logger.Error("Error trying to call findAccountByID services",
+		logger.Error(
+			"Error trying to call ListTransactionsService services",
 			err,
-			zap.String("journey", "findAccountByID"),
+			zap.String("journey", "ListTransaction"),
 		)
 		c.JSON(err.Code, err)
 		return
 	}
 
-	logger.Info("FindAccountByID controller executed successfully",
-		zap.String("journey", "findAccountByID"),
+	logger.Info("ListTransactions controller executed successfully",
+		zap.String("journey", "ListTransactions"),
 	)
-	c.JSON(http.StatusOK, mapper.MapDomainToResponse(
-		accountDomain,
-	))
+
+	transactionResponse := []response.TransactionResponse{}
+
+	for _, transaction := range *transactionsDomain {
+		transactionResponse = append(transactionResponse, mapper.MapDomainToResponse(&transaction))
+	}
+
+	c.JSON(http.StatusOK, transactionResponse)
 }

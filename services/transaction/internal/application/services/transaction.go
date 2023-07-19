@@ -7,7 +7,7 @@ import (
 
 func NewTransactionDomainService(
 	transactionRepository output.TransactionPort,
-) input.AccountDomainService {
+) input.TransactionDomainService {
 	return &transactionDomainService{
 		transactionRepository,
 	}

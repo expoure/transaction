@@ -31,6 +31,39 @@
           "disable_host_sanitize": true
         }
       ]
+    },
+    {
+      "endpoint": "/v1/transactions",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/v1/transactions",
+          "host": [
+            "http://transaction-ms:3001"
+          ],
+          "encoding": "no-op",
+          "disable_host_sanitize": true
+        }
+      ]
+    },
+    {
+      "endpoint": "/v1/transactions",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_query_strings": [
+        "accountId"
+      ],
+      "backend": [
+        {
+          "url_pattern": "/v1/transactions",
+          "host": [
+            "http://transaction-ms:3001"
+          ],
+          "encoding": "no-op",
+          "disable_host_sanitize": true
+        }
+      ]
     }
   ]
 }

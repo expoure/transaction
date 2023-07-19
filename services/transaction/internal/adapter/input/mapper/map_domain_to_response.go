@@ -7,24 +7,13 @@ import (
 
 func MapDomainToResponse(
 	accountDomain *domain.TransactionDomain,
-) response.AccountResponse {
-	response := response.AccountResponse{
-		ID:             accountDomain.ID.String(),
-		DocumentNumber: accountDomain.DocumentNumber,
-		Balance: response.BalanceResponse{
-			Amount:          accountDomain.Balance.Display(),
-			Currency:        accountDomain.Balance.Currency().Code,
-			SmallUnitAmount: accountDomain.Balance.Amount(),
-		},
-		CreatedAt: accountDomain.CreatedAt.String(),
-		UpdatedAt: accountDomain.UpdatedAt.String(),
-	}
-
-	if accountDomain.DeletedAt != nil {
-		deletedAt := accountDomain.DeletedAt.String()
-		response.DeletedAt = &deletedAt
-	} else {
-		response.DeletedAt = nil
+) response.TransactionResponse {
+	response := response.TransactionResponse{
+		ID:              accountDomain.ID.String(),
+		AccountID:       accountDomain.AccountID.String(),
+		OperationTypeID: accountDomain.OperationTypeID,
+		EventDate:       accountDomain.EventDate.String(),
+		Amount:          accountDomain.Amount.AsMajorUnits(),
 	}
 
 	return response

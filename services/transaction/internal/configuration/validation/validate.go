@@ -30,7 +30,7 @@ func init() {
 	}
 }
 
-func ValidateAccountError(
+func ValidateTransactionError(
 	validation_err error,
 ) *rest_errors.RestErr {
 

@@ -4,7 +4,7 @@
     - Adicionar balance no account + mapper do Balance [x]
     - Criar transaction microservice
     - Adicionar kafka
-    - Testes
+    - Testes + validações de negócio
     - Swagger
     - Adicionar collection do insomnia
 

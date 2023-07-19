@@ -53,9 +53,9 @@ func main() {
 
 func initDependencies(
 	databaseConn *sql.DB,
-) controller.transactionControllerInterface {
+) controller.TransactionControllerInterface {
 	queries := sqlc.New(databaseConn)
 	transactionRepo := repository.NewTransactionRepository(queries, databaseConn)
 	transactionService := service.NewTransactionDomainService(transactionRepo)
-	return controller.NewtransactionControllerInterface(transactionService)
+	return controller.NewTransactionControllerInterface(transactionService)
 }
