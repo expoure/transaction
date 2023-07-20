@@ -22,7 +22,7 @@ type transactionProducerImpl struct {
 }
 
 func (tp *transactionProducerImpl) TransactionCreated(transactionDomain domain.TransactionDomain) {
-	transactionJson := mapper.MapDomainToJson(transactionDomain)
+	transactionJson := mapper.MapDomainToEventJson(transactionDomain)
 	tp.kafka.Produce(
 		&kafka.Message{
 			TopicPartition: kafka.TopicPartition{

@@ -65,7 +65,8 @@ func initDependencies(
 	consumerInterface := consumer.NewConsumerInterface(kafkaConsumer, accountService)
 
 	go func() {
-		consumerInterface.Consume([]string{"transaction_created"})
+		consumerInterface.Subscribe([]string{consumer.TRANSACTION_CREATED_TOPIC})
+		consumerInterface.Consume()
 	}()
 
 	return controller.NewAccountControllerInterface(accountService)

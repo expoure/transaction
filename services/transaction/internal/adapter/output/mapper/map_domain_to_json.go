@@ -2,21 +2,20 @@ package mapper
 
 import (
 	"encoding/json"
+	"strconv"
 
 	"github.com/expoure/pismo/transaction/internal/adapter/output/model/entity"
 	"github.com/expoure/pismo/transaction/internal/application/domain"
 )
 
-func MapDomainToJson(
+func MapDomainToEventJson(
 	domain domain.TransactionDomain,
 ) *[]byte {
 
-	t := entity.TransactionJson{
-		ID:              domain.ID.String(),
-		AccountID:       domain.AccountID.String(),
-		OperationTypeID: domain.OperationTypeID,
-		EventDate:       domain.EventDate.String(),
-		Amount:          domain.Amount.Amount(),
+	stringAmount := strconv.Itoa(int(domain.Amount.Amount()))
+	t := entity.TransactionEventJson{
+		AccountID: domain.AccountID.String(),
+		Amount:    stringAmount,
 	}
 
 	transactionJson, _ := json.Marshal(t)
