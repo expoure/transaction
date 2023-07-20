@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/expoure/pismo/account/internal/adapter/input/consumer"
 	"github.com/expoure/pismo/account/internal/adapter/input/controller"
 	"github.com/expoure/pismo/account/internal/adapter/input/controller/routes"
 	"github.com/expoure/pismo/account/internal/adapter/output/repository"
@@ -14,6 +15,7 @@ import (
 	"github.com/expoure/pismo/account/internal/configuration/database/postgres"
 	"github.com/expoure/pismo/account/internal/configuration/database/sqlc"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
+	"github.com/expoure/pismo/account/internal/configuration/message_broker"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -58,5 +60,13 @@ func initDependencies(
 	queries := sqlc.New(databaseCon)
 	accountRepo := repository.NewAccountRepository(queries, databaseCon)
 	accountService := service.NewAccountDomainService(accountRepo)
+
+	kafkaConsumer := message_broker.GetKafkaConsumer()
+	consumerInterface := consumer.NewConsumerInterface(kafkaConsumer, accountService)
+
+	go func() {
+		consumerInterface.Consume([]string{"transaction_created"})
+	}()
+
 	return controller.NewAccountControllerInterface(accountService)
 }

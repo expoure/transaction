@@ -16,7 +16,7 @@ import (
 	"github.com/expoure/pismo/transaction/internal/configuration/database/postgres"
 	"github.com/expoure/pismo/transaction/internal/configuration/database/sqlc"
 	"github.com/expoure/pismo/transaction/internal/configuration/logger"
-	"github.com/expoure/pismo/transaction/internal/configuration/message"
+	"github.com/expoure/pismo/transaction/internal/configuration/message_broker"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -39,8 +39,8 @@ func main() {
 	}
 	defer databaseCon.Close()
 
-	producer := message.GetKafkaProducer()
-	defer message.CloseKafkaConnections()
+	producer := message_broker.GetKafkaProducer()
+	defer message_broker.CloseKafkaConnections()
 
 	transactionController := initDependencies(databaseCon, producer)
 

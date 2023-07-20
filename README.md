@@ -2,9 +2,10 @@
 
 ## ordem de prioridade:
     - Adicionar balance no account + mapper do Balance [x]
-    - Criar transaction microservice
-    - Adicionar kafka
-    - Testes + validações de negócio
+    - Criar transaction microservice [x]
+    - Adicionar kafka [x]
+    - Testes + validações de negócio (se vai ser + ou - o amount etc)
+        - cpf cnpj regex
     - Swagger
     - Adicionar collection do insomnia
     - Criar auth com jwt

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/Rhymond/go-money"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
 	"github.com/expoure/pismo/account/internal/configuration/rest_errors"
@@ -26,8 +28,11 @@ func (ad *accountDomainService) UpdateAccountBalanceByIDServices(
 		return err
 	}
 
+	fmt.Println(result.Amount())
+	fmt.Println(transactionAmount)
 	newBalance, _ := result.Add(money.New(transactionAmount, "BRL"))
 
+	fmt.Println(newBalance)
 	err = ad.repository.UpdateAccountBalanceByID(id, newBalance.Amount())
 
 	if err != nil {

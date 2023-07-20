@@ -102,7 +102,7 @@ func (ar *accountRepositoryImpl) UpdateAccountBalanceByID(
 		zap.String("journey", "UpdateAccountBalance"))
 
 	// tenho que colocar um mutex aqui
-	_, err := ar.databaseCon.Exec("UPDATE account SET balance = ($1, $2) WHERE id = $3", transactionAmount, "BRL", id)
+	_, err := ar.databaseCon.Exec("UPDATE account SET balance = ($1, $2), updated_at = NOW() WHERE id = $3", transactionAmount, "BRL", id)
 
 	if err != nil {
 		logger.Error("Error trying to FindAccountByID",
