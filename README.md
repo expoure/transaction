@@ -41,6 +41,9 @@ docker compose up -d
 - Krakend API-Gateway: direcionará as <em>requests</em> para o microservice adequado. 
 - Event-Driven: ...
 
+### Testes:
+- Testes de repo: rodar o banco de testes e garantir que as var do dockercompose estejam corretas no código
+
 # Arquitetura
 
 ![image info](./assets/arch.png)

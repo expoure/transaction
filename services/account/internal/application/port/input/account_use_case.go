@@ -1,6 +1,7 @@
 package input
 
 import (
+	"github.com/Rhymond/go-money"
 	"github.com/expoure/pismo/account/internal/application/domain"
 	"github.com/expoure/pismo/account/internal/configuration/rest_errors"
 	"github.com/google/uuid"
@@ -21,5 +22,5 @@ type AccountDomainService interface {
 	UpdateAccountBalanceByIDServices(
 		id uuid.UUID,
 		transactionAmount int64,
-	) *rest_errors.RestErr
+	) (*money.Money, *rest_errors.RestErr)
 }

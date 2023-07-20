@@ -20,6 +20,22 @@ services:
       - ./.docker/pg-data-account:/var/lib/postgresql/data
       - ./services/account/internal/sql/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
 
+  account-db-test:
+    image: postgres:15.3
+    hostname: account-db-test
+    container_name: account-db-test
+    networks:
+      - internal-net
+    ports:
+      - 5440:5432
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_DB=test
+    tty: true
+    volumes:
+      - ./services/account/internal/sql/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
+
   transaction-db:
     image: postgres:15.3
     hostname: transaction-db

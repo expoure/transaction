@@ -8,7 +8,7 @@ import (
 )
 
 func NewAccountDomainService(
-	accountRepository output.AccountPort,
+	accountRepository output.AccountRepositoryPort,
 ) input.AccountDomainService {
 	return &accountDomainService{
 		accountRepository,
@@ -17,6 +17,6 @@ func NewAccountDomainService(
 }
 
 type accountDomainService struct {
-	repository output.AccountPort
+	repository output.AccountRepositoryPort
 	mutex      *sync.Mutex
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type AccountPort interface {
+type AccountRepositoryPort interface {
 	CreateAccount(
 		accountDomain domain.AccountDomain,
 	) (*domain.AccountDomain, *rest_errors.RestErr)
@@ -15,7 +15,7 @@ type AccountPort interface {
 	UpdateAccountBalanceByID(
 		id uuid.UUID,
 		transactionAmount int64,
-	) *rest_errors.RestErr
+	) (*money.Money, *rest_errors.RestErr)
 
 	FindAccountBalanceByID(
 		id uuid.UUID,
