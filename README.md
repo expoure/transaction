@@ -8,6 +8,7 @@
         - cpf cnpj regex
     - Swagger
     - Adicionar collection do insomnia
+    - repensar o rest_errors
     - Criar auth com jwt
     - Criar interface pro producer kafka/qualquer outro
 

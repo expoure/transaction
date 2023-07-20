@@ -12,6 +12,10 @@ func (ad *accountDomainService) UpdateAccountBalanceByIDServices(
 	id uuid.UUID,
 	transactionAmount int64,
 ) (*money.Money, *rest_errors.RestErr) {
+	if transactionAmount == 0 {
+		return nil, rest_errors.NewBadRequestError("invalid transaction amount")
+	}
+
 	logger.Info("Init updateAccountBalance.",
 		zap.String("journey", "updateAccountBalance"))
 
