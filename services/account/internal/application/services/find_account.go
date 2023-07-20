@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/expoure/pismo/account/internal/application/domain"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
 	"github.com/expoure/pismo/account/internal/configuration/rest_errors"
@@ -14,6 +16,7 @@ func (ad *accountDomainService) FindAccountByIDServices(
 	logger.Info("Init findAccountByID services.",
 		zap.String("journey", "findAccountById"))
 
+	fmt.Println("======", id)
 	return ad.repository.FindAccountByID(id)
 }
 
