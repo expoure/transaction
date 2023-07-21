@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/Rhymond/go-money"
 	"github.com/expoure/pismo/account/internal/adapter/output/mapper"
@@ -101,8 +100,6 @@ func (ar *accountRepositoryImpl) FindAccountByID(
 		context.Background(),
 		id,
 	)
-
-	fmt.Println("==============find", result)
 
 	if err != nil {
 		logger.Error("Error trying to FindAccountByID",
