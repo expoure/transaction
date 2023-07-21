@@ -77,7 +77,7 @@ Como estamos lidando com real e centavos (ou quaisquer que sejam os equivalentes
 Você pode rodar o exemplo [aqui](https://go.dev/play/p/IrhUSV1CZGC) e também ler mais informações neste ótimo [artigo](https://blog.codeminer42.com/be-cool-dont-use-float-double-for-storing-monetary-values)
 
 ### Event-Driven
-<p>Trabalhar com _microservices_ pode ser muito complexo dependendo do domínio da aplicação. Um dos grandes problemas desta arquitetura são as chamadas síncronas entre serviços, que podem gerar lentidão no sistema como um todo ou folharem devido a falhas de rede. Event-Driven é descrito por Mark Richards e Neal Ford em [Fundamentals of Software Architecture: An Engineering Approach](https://www.goodreads.com/book/show/44144493-fundamentals-of-software-architecture) como uma `arquitetura`. Nesta arquitetura, cada ação gera um evento e este será usado por outra ação que também irá gerar um evento e assim por diante.</p>
-<p>
+Trabalhar com _microservices_ pode ser muito complexo dependendo do domínio da aplicação. Um dos grandes problemas desta arquitetura são as chamadas síncronas entre serviços, que podem gerar lentidão no sistema como um todo ou folharem devido a falhas de rede. Event-Driven é descrito por Mark Richards e Neal Ford em [Fundamentals of Software Architecture: An Engineering Approach](https://www.goodreads.com/book/show/44144493-fundamentals-of-software-architecture) como uma `arquitetura`. Nesta arquitetura, cada ação gera um evento e este será usado por outra ação que também irá gerar um evento e assim por diante.</p>
+
 Devido a esta característica, _microservices_ "casam" bem como uma arquitetura baseada em eventos, pois os erros de rede são drasticamente diminuídos e tudo acontece de forma assíncrona.
 </p>
