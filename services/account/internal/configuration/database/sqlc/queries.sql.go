@@ -9,7 +9,7 @@ import (
 	"context"
 
 	custom_types "github.com/expoure/pismo/account/internal/configuration/database/custom_types"
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
 )
 
 const createAccount = `-- name: CreateAccount :one
@@ -17,7 +17,7 @@ INSERT INTO account (document_number, balance) VALUES ($1, (0,'BRL')) RETURNING 
 `
 
 func (q *Queries) CreateAccount(ctx context.Context, documentNumber string) (Account, error) {
-	row := q.db.QueryRowContext(ctx, createAccount, documentNumber)
+	row := q.db.QueryRow(ctx, createAccount, documentNumber)
 	var i Account
 	err := row.Scan(
 		&i.ID,
@@ -36,7 +36,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) FindAccountBalanceById(ctx context.Context, id uuid.UUID) (*custom_types.Money, error) {
-	row := q.db.QueryRowContext(ctx, findAccountBalanceById, id)
+	row := q.db.QueryRow(ctx, findAccountBalanceById, id)
 	var balance *custom_types.Money
 	err := row.Scan(&balance)
 	return balance, err
@@ -48,7 +48,7 @@ WHERE document_number = $1 LIMIT 1
 `
 
 func (q *Queries) FindAccountByDocumentNumber(ctx context.Context, documentNumber string) (Account, error) {
-	row := q.db.QueryRowContext(ctx, findAccountByDocumentNumber, documentNumber)
+	row := q.db.QueryRow(ctx, findAccountByDocumentNumber, documentNumber)
 	var i Account
 	err := row.Scan(
 		&i.ID,
@@ -67,7 +67,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) FindAccountById(ctx context.Context, id uuid.UUID) (Account, error) {
-	row := q.db.QueryRowContext(ctx, findAccountById, id)
+	row := q.db.QueryRow(ctx, findAccountById, id)
 	var i Account
 	err := row.Scan(
 		&i.ID,

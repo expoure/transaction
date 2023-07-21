@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -13,10 +12,10 @@ import (
 	"github.com/expoure/pismo/account/internal/adapter/output/repository"
 	service "github.com/expoure/pismo/account/internal/application/services"
 	"github.com/expoure/pismo/account/internal/configuration/database/postgres"
-	"github.com/expoure/pismo/account/internal/configuration/database/sqlc"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
 	"github.com/expoure/pismo/account/internal/configuration/message_broker"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
@@ -29,7 +28,7 @@ func main() {
 		return
 	}
 
-	databaseCon, err := postgres.NewPostgresConnection(context.Background())
+	connPool, err := postgres.NewPostgresConnection(context.Background())
 
 	if err != nil {
 		log.Fatalf(
@@ -37,9 +36,9 @@ func main() {
 			err.Error())
 		return
 	}
-	defer databaseCon.Close()
+	defer connPool.Close()
 
-	accountController := initDependencies(databaseCon)
+	accountController := initDependencies(connPool)
 
 	router := gin.Default()
 	group := router.Group("/v1/accounts")
@@ -55,10 +54,9 @@ func main() {
 }
 
 func initDependencies(
-	databaseCon *sql.DB,
+	connPool *pgxpool.Pool,
 ) controller.AccountControllerInterface {
-	queries := sqlc.New(databaseCon)
-	accountRepo := repository.NewAccountRepository(queries, databaseCon)
+	accountRepo := repository.NewAccountRepository(connPool)
 	accountService := service.NewAccountDomainService(accountRepo)
 
 	kafkaConsumer := message_broker.GetKafkaConsumer()

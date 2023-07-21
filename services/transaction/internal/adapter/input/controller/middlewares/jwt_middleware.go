@@ -8,7 +8,7 @@
 // 	"github.com/expoure/pismo/transaction/internal/application/constants"
 // 	"github.com/expoure/pismo/transaction/internal/application/domain"
 // 	"github.com/expoure/pismo/transaction/internal/configuration/logger"
-// 	"github.com/expoure/pismo/transaction/internal/configuration/rest_errors"
+// 	"github.com/expoure/pismo/transaction/internal/configuration/customized_errors"
 // 	"github.com/gin-gonic/gin"
 // 	"github.com/golang-jwt/jwt"
 // )
@@ -22,10 +22,10 @@
 // 			return []byte(secret), nil
 // 		}
 
-// 		return nil, rest_errors.NewBadRequestError("invalid token")
+// 		return nil, customized_errors.NewBadRequestError("invalid token")
 // 	})
 // 	if err != nil {
-// 		errRest := rest_errors.NewUnauthorizedRequestError("invalid token")
+// 		errRest := customized_errors.NewUnauthorizedRequestError("invalid token")
 // 		c.JSON(errRest.Code, errRest)
 // 		c.Abort()
 // 		return
@@ -33,7 +33,7 @@
 
 // 	claims, ok := token.Claims.(jwt.MapClaims)
 // 	if !ok || !token.Valid {
-// 		errRest := rest_errors.NewUnauthorizedRequestError("invalid token")
+// 		errRest := customized_errors.NewUnauthorizedRequestError("invalid token")
 // 		c.JSON(errRest.Code, errRest)
 // 		c.Abort()
 // 		return

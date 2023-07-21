@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/Rhymond/go-money"
+	"github.com/expoure/pismo/account/internal/configuration/customized_errors"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
-	"github.com/expoure/pismo/account/internal/configuration/rest_errors"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -11,9 +11,9 @@ import (
 func (ad *accountDomainService) UpdateAccountBalanceByIDServices(
 	id uuid.UUID,
 	transactionAmount int64,
-) (*money.Money, *rest_errors.RestErr) {
+) (*money.Money, *customized_errors.RestErr) {
 	if transactionAmount == 0 {
-		return nil, rest_errors.NewBadRequestError("invalid transaction amount")
+		return nil, customized_errors.NewBadRequestError("Is not possible to update balance with 0")
 	}
 
 	logger.Info("Init updateAccountBalance.",
@@ -24,10 +24,8 @@ func (ad *accountDomainService) UpdateAccountBalanceByIDServices(
 
 	result, err := ad.repository.FindAccountBalanceByID(id)
 	if err != nil {
-		logger.Error("Error trying to call repository",
-			err,
-			zap.String("journey", "updateAccountBalance"))
-		return nil, err
+		_, errHandled := handleFindError(err)
+		return nil, errHandled
 	}
 
 	newBalance, _ := result.Add(money.New(transactionAmount, "BRL"))
@@ -36,9 +34,9 @@ func (ad *accountDomainService) UpdateAccountBalanceByIDServices(
 
 	if err != nil {
 		logger.Error("Error trying to call repository",
-			err,
+			*err,
 			zap.String("journey", "updateAccountBalance"))
-		return nil, err
+		return nil, customized_errors.NewInternalServerError("")
 	}
 	// criar evento de balance_updated
 

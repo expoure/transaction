@@ -5,11 +5,11 @@
 package sqlc
 
 import (
-	"database/sql"
 	"time"
 
 	custom_types "github.com/expoure/pismo/account/internal/configuration/database/custom_types"
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Account struct {
@@ -18,5 +18,5 @@ type Account struct {
 	Balance        *custom_types.Money
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
-	DeletedAt      sql.NullTime
+	DeletedAt      pgtype.Timestamptz
 }

@@ -9,7 +9,6 @@ import (
 
 	money "github.com/Rhymond/go-money"
 	domain "github.com/expoure/pismo/account/internal/application/domain"
-	rest_errors "github.com/expoure/pismo/account/internal/configuration/rest_errors"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -38,11 +37,11 @@ func (m *MockAccountRepositoryPort) EXPECT() *MockAccountRepositoryPortMockRecor
 }
 
 // CreateAccount mocks base method.
-func (m *MockAccountRepositoryPort) CreateAccount(accountDomain domain.AccountDomain) (*domain.AccountDomain, *rest_errors.RestErr) {
+func (m *MockAccountRepositoryPort) CreateAccount(accountDomain domain.AccountDomain) (*domain.AccountDomain, *error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAccount", accountDomain)
 	ret0, _ := ret[0].(*domain.AccountDomain)
-	ret1, _ := ret[1].(*rest_errors.RestErr)
+	ret1, _ := ret[1].(*error)
 	return ret0, ret1
 }
 
@@ -53,11 +52,11 @@ func (mr *MockAccountRepositoryPortMockRecorder) CreateAccount(accountDomain int
 }
 
 // FindAccountBalanceByID mocks base method.
-func (m *MockAccountRepositoryPort) FindAccountBalanceByID(id uuid.UUID) (*money.Money, *rest_errors.RestErr) {
+func (m *MockAccountRepositoryPort) FindAccountBalanceByID(id uuid.UUID) (*money.Money, *error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAccountBalanceByID", id)
 	ret0, _ := ret[0].(*money.Money)
-	ret1, _ := ret[1].(*rest_errors.RestErr)
+	ret1, _ := ret[1].(*error)
 	return ret0, ret1
 }
 
@@ -68,11 +67,11 @@ func (mr *MockAccountRepositoryPortMockRecorder) FindAccountBalanceByID(id inter
 }
 
 // FindAccountByDocumentNumber mocks base method.
-func (m *MockAccountRepositoryPort) FindAccountByDocumentNumber(documentNumber string) (*domain.AccountDomain, *rest_errors.RestErr) {
+func (m *MockAccountRepositoryPort) FindAccountByDocumentNumber(documentNumber string) (*domain.AccountDomain, *error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAccountByDocumentNumber", documentNumber)
 	ret0, _ := ret[0].(*domain.AccountDomain)
-	ret1, _ := ret[1].(*rest_errors.RestErr)
+	ret1, _ := ret[1].(*error)
 	return ret0, ret1
 }
 
@@ -83,11 +82,11 @@ func (mr *MockAccountRepositoryPortMockRecorder) FindAccountByDocumentNumber(doc
 }
 
 // FindAccountByID mocks base method.
-func (m *MockAccountRepositoryPort) FindAccountByID(id uuid.UUID) (*domain.AccountDomain, *rest_errors.RestErr) {
+func (m *MockAccountRepositoryPort) FindAccountByID(id uuid.UUID) (*domain.AccountDomain, *error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindAccountByID", id)
 	ret0, _ := ret[0].(*domain.AccountDomain)
-	ret1, _ := ret[1].(*rest_errors.RestErr)
+	ret1, _ := ret[1].(*error)
 	return ret0, ret1
 }
 
@@ -98,11 +97,11 @@ func (mr *MockAccountRepositoryPortMockRecorder) FindAccountByID(id interface{})
 }
 
 // UpdateAccountBalanceByID mocks base method.
-func (m *MockAccountRepositoryPort) UpdateAccountBalanceByID(id uuid.UUID, transactionAmount int64) (*money.Money, *rest_errors.RestErr) {
+func (m *MockAccountRepositoryPort) UpdateAccountBalanceByID(id uuid.UUID, transactionAmount int64) (*money.Money, *error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAccountBalanceByID", id, transactionAmount)
 	ret0, _ := ret[0].(*money.Money)
-	ret1, _ := ret[1].(*rest_errors.RestErr)
+	ret1, _ := ret[1].(*error)
 	return ret0, ret1
 }
 

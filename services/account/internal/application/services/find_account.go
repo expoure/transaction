@@ -1,30 +1,47 @@
 package service
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/expoure/pismo/account/internal/application/domain"
+	"github.com/expoure/pismo/account/internal/configuration/customized_errors"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
-	"github.com/expoure/pismo/account/internal/configuration/rest_errors"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
 func (ad *accountDomainService) FindAccountByIDServices(
 	id uuid.UUID,
-) (*domain.AccountDomain, *rest_errors.RestErr) {
+) (*domain.AccountDomain, *customized_errors.RestErr) {
 	logger.Info("Init findAccountByID services.",
 		zap.String("journey", "findAccountById"))
 
-	fmt.Println("======", id)
-	return ad.repository.FindAccountByID(id)
+	account, err := ad.repository.FindAccountByID(id)
+
+	if err != nil {
+		return handleFindError(err)
+	}
+
+	return account, nil
 }
 
 func (ad *accountDomainService) FindAccountByDocumentNumberServices(
 	documentNumber string,
-) (*domain.AccountDomain, *rest_errors.RestErr) {
+) (*domain.AccountDomain, *customized_errors.RestErr) {
 	logger.Info("Init findAccountByEmail services.",
 		zap.String("journey", "findAccountById"))
 
-	return ad.repository.FindAccountByDocumentNumber(documentNumber)
+	account, err := ad.repository.FindAccountByDocumentNumber(documentNumber)
+	if err != nil {
+		return handleFindError(err)
+	}
+
+	return account, nil
+}
+
+func handleFindError(err *error) (*domain.AccountDomain, *customized_errors.RestErr) {
+	if errors.Is(*err, customized_errors.EntityNotFound) {
+		return nil, customized_errors.NewBadRequestError("Account not found")
+	}
+	return nil, customized_errors.NewInternalServerError("Internal Server Error")
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/Rhymond/go-money"
 	mock_repository "github.com/expoure/pismo/account/internal/adapter/output/repository/mock"
 	"github.com/expoure/pismo/account/internal/application/port/output"
-	"github.com/expoure/pismo/account/internal/configuration/rest_errors"
+	"github.com/expoure/pismo/account/internal/configuration/customized_errors"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -95,7 +95,7 @@ func Test_accountDomainService_UpdateAccountBalanceByIDServices(t *testing.T) {
 			got, err := ad.UpdateAccountBalanceByIDServices(tt.args.id, tt.args.transactionAmount)
 
 			if (err != nil) && tt.wantErr {
-				require.ErrorContains(t, err, "invalid transaction amount")
+				require.ErrorContains(t, err, "Is not possible to update balance with 0")
 			} else {
 				require.Nil(t, err)
 				require.Equal(t, tt.want, got)
@@ -105,7 +105,7 @@ func Test_accountDomainService_UpdateAccountBalanceByIDServices(t *testing.T) {
 
 	t.Run("It errors when trying to update the balance of a non-existent account", func(t *testing.T) {
 		accountUuid := uuid.New()
-		repo.EXPECT().FindAccountBalanceByID(gomock.Eq(accountUuid)).Return(nil, rest_errors.NewInternalServerError("")).AnyTimes()
+		repo.EXPECT().FindAccountBalanceByID(gomock.Eq(accountUuid)).Return(nil, &customized_errors.EntityNotFound).AnyTimes()
 		repo.EXPECT().UpdateAccountBalanceByID(gomock.Eq(accountUuid), gomock.Eq(1)).Return(money.New(1, "BRL"), nil).AnyTimes()
 		ad := &accountDomainService{
 			repository: repo,
@@ -114,7 +114,9 @@ func Test_accountDomainService_UpdateAccountBalanceByIDServices(t *testing.T) {
 
 		_, err := ad.UpdateAccountBalanceByIDServices(accountUuid, 1)
 
-		t.Log(err)
+		require.NotNil(t, err)
+		require.IsType(t, &customized_errors.RestErr{}, err)
+		require.Equal(t, "Account not found", err.Error())
 		// require.NotNil(t, err)
 		// require.ErrorContains(t, err, "account not found")
 	})

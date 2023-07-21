@@ -2,14 +2,14 @@ package service
 
 import (
 	"github.com/expoure/pismo/transaction/internal/application/domain"
+	"github.com/expoure/pismo/transaction/internal/configuration/customized_errors"
 	"github.com/expoure/pismo/transaction/internal/configuration/logger"
-	"github.com/expoure/pismo/transaction/internal/configuration/rest_errors"
 	"go.uber.org/zap"
 )
 
 func (td *transactionDomainService) CreateTransactionServices(
 	transactionDomain domain.TransactionDomain,
-) (*domain.TransactionDomain, *rest_errors.RestErr) {
+) (*domain.TransactionDomain, *customized_errors.RestErr) {
 	logger.Info("Init createTransaction model.",
 		zap.String("journey", "createTransaction"))
 

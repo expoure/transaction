@@ -8,9 +8,9 @@ import (
 	"github.com/expoure/pismo/transaction/internal/adapter/output/model/entity"
 	"github.com/expoure/pismo/transaction/internal/application/domain"
 	"github.com/expoure/pismo/transaction/internal/application/port/output"
+	"github.com/expoure/pismo/transaction/internal/configuration/customized_errors"
 	"github.com/expoure/pismo/transaction/internal/configuration/database/sqlc"
 	"github.com/expoure/pismo/transaction/internal/configuration/logger"
-	"github.com/expoure/pismo/transaction/internal/configuration/rest_errors"
 	"github.com/google/uuid"
 
 	"go.uber.org/zap"
@@ -44,7 +44,7 @@ type transactionRepositoryImpl struct {
 
 func (tr *transactionRepositoryImpl) CreateTransaction(
 	transactionDomain domain.TransactionDomain,
-) (*domain.TransactionDomain, *rest_errors.RestErr) {
+) (*domain.TransactionDomain, *customized_errors.RestErr) {
 	logger.Info("Init CreateTransaction repository",
 		zap.String("journey", "createTransaction"))
 
@@ -72,7 +72,7 @@ func (tr *transactionRepositoryImpl) CreateTransaction(
 		logger.Error("Error trying to create transaction",
 			err,
 			zap.String("journey", "createTransaction"))
-		return nil, rest_errors.NewInternalServerError(err.Error())
+		return nil, customized_errors.NewInternalServerError(err.Error())
 	}
 
 	return mapper.MapEntityToDomain(transaction), nil
@@ -81,7 +81,7 @@ func (tr *transactionRepositoryImpl) CreateTransaction(
 
 func (tr *transactionRepositoryImpl) ListTransactionsByAccountID(
 	id uuid.UUID,
-) (*[]domain.TransactionDomain, *rest_errors.RestErr) {
+) (*[]domain.TransactionDomain, *customized_errors.RestErr) {
 	logger.Info("Init ListTransactionsByAccountID repository",
 		zap.String("journey", "ListTransactionsByAccountID"))
 
@@ -94,7 +94,7 @@ func (tr *transactionRepositoryImpl) ListTransactionsByAccountID(
 		logger.Error("Error trying to list transactions",
 			err,
 			zap.String("journey", "ListTransactionsByAccountID"))
-		return nil, rest_errors.NewInternalServerError(err.Error())
+		return nil, customized_errors.NewInternalServerError(err.Error())
 	}
 
 	transactionsDomain := []domain.TransactionDomain{}

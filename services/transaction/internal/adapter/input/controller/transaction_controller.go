@@ -10,8 +10,8 @@ import (
 	"github.com/expoure/pismo/transaction/internal/adapter/input/model/response"
 	"github.com/expoure/pismo/transaction/internal/application/domain"
 	"github.com/expoure/pismo/transaction/internal/application/port/input"
+	"github.com/expoure/pismo/transaction/internal/configuration/customized_errors"
 	"github.com/expoure/pismo/transaction/internal/configuration/logger"
-	"github.com/expoure/pismo/transaction/internal/configuration/rest_errors"
 	"github.com/expoure/pismo/transaction/internal/configuration/validation"
 	"github.com/google/uuid"
 
@@ -86,7 +86,7 @@ func (uc *transactionControllerImpl) ListTransaction(c *gin.Context) {
 			uuidErr,
 			zap.String("journey", "ListTransaction"),
 		)
-		errorMessage := rest_errors.NewBadRequestError(
+		errorMessage := customized_errors.NewBadRequestError(
 			"id is not a valid uuid",
 		)
 

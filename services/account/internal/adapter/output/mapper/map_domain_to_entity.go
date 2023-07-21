@@ -1,10 +1,9 @@
 package mapper
 
 import (
-	"database/sql"
-
 	"github.com/expoure/pismo/account/internal/adapter/output/model/entity"
 	"github.com/expoure/pismo/account/internal/application/domain"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func MapDomainToEntity(
@@ -15,6 +14,6 @@ func MapDomainToEntity(
 		DocumentNumber: domain.DocumentNumber,
 		CreatedAt:      domain.CreatedAt,
 		UpdatedAt:      domain.UpdatedAt,
-		DeletedAt:      sql.NullTime{Time: *domain.DeletedAt},
+		DeletedAt:      pgtype.Timestamptz{Time: *domain.DeletedAt, Valid: true},
 	}
 }

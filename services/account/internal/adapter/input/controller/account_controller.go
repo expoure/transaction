@@ -7,8 +7,8 @@ import (
 	"github.com/expoure/pismo/account/internal/adapter/input/model/request"
 	"github.com/expoure/pismo/account/internal/application/domain"
 	"github.com/expoure/pismo/account/internal/application/port/input"
+	"github.com/expoure/pismo/account/internal/configuration/customized_errors"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
-	"github.com/expoure/pismo/account/internal/configuration/rest_errors"
 	"github.com/expoure/pismo/account/internal/configuration/validation"
 	"github.com/google/uuid"
 
@@ -81,7 +81,7 @@ func (uc *accountControllerImpl) FindAccountByID(c *gin.Context) {
 			uuidErr,
 			zap.String("journey", "findAccountByID"),
 		)
-		errorMessage := rest_errors.NewBadRequestError(
+		errorMessage := customized_errors.NewBadRequestError(
 			"id is not a valid uuid",
 		)
 

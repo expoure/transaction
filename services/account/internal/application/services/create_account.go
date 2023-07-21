@@ -1,30 +1,35 @@
 package service
 
 import (
+	"regexp"
+
 	"github.com/expoure/pismo/account/internal/application/domain"
+	"github.com/expoure/pismo/account/internal/configuration/customized_errors"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
-	"github.com/expoure/pismo/account/internal/configuration/rest_errors"
 	"go.uber.org/zap"
 )
 
 func (ad *accountDomainService) CreateAccountServices(
 	accountDomain domain.AccountDomain,
-) (*domain.AccountDomain, *rest_errors.RestErr) {
+) (*domain.AccountDomain, *customized_errors.RestErr) {
 	logger.Info("Init createAccount model.",
 		zap.String("journey", "createAccount"))
 
-	account, _ := ad.FindAccountByDocumentNumberServices(accountDomain.DocumentNumber)
-
-	if account != nil {
-		return nil, rest_errors.NewBadRequestError("This document number is already registered")
+	if err := validateDocumentNumber(accountDomain.DocumentNumber); err != nil {
+		return nil, err
 	}
 
 	accountCreated, err := ad.repository.CreateAccount(accountDomain)
 	if err != nil {
 		logger.Error("Error trying to call repository",
-			err,
+			*err,
 			zap.String("journey", "createAccount"))
-		return nil, err
+
+		if err == &customized_errors.DuplicateKey {
+			return nil, customized_errors.NewBadRequestError("This document number is already registered")
+		}
+
+		return nil, customized_errors.NewInternalServerError("Was not possible to create account")
 	}
 	// criar evento de account_created
 
@@ -32,5 +37,18 @@ func (ad *accountDomainService) CreateAccountServices(
 		"CreateAccount service executed successfully",
 		zap.String("AccountId", accountCreated.ID.String()),
 		zap.String("journey", "createAccount"))
+
 	return accountCreated, nil
+}
+
+func validateDocumentNumber(documentNumber string) *customized_errors.RestErr {
+	if documentNumber == "" {
+		return customized_errors.NewBadRequestError("Document number is required")
+	}
+	re := regexp.MustCompile(`^([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})$`)
+	if !re.MatchString(documentNumber) {
+		return customized_errors.NewBadRequestError("Invalid document number")
+	}
+
+	return nil
 }

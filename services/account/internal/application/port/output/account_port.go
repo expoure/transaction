@@ -3,29 +3,28 @@ package output
 import (
 	"github.com/Rhymond/go-money"
 	"github.com/expoure/pismo/account/internal/application/domain"
-	"github.com/expoure/pismo/account/internal/configuration/rest_errors"
 	"github.com/google/uuid"
 )
 
 type AccountRepositoryPort interface {
 	CreateAccount(
 		accountDomain domain.AccountDomain,
-	) (*domain.AccountDomain, *rest_errors.RestErr)
+	) (*domain.AccountDomain, *error)
 
 	UpdateAccountBalanceByID(
 		id uuid.UUID,
 		transactionAmount int64,
-	) (*money.Money, *rest_errors.RestErr)
+	) (*money.Money, *error)
 
 	FindAccountBalanceByID(
 		id uuid.UUID,
-	) (*money.Money, *rest_errors.RestErr)
+	) (*money.Money, *error)
 
 	FindAccountByDocumentNumber(
 		documentNumber string,
-	) (*domain.AccountDomain, *rest_errors.RestErr)
+	) (*domain.AccountDomain, *error)
 
 	FindAccountByID(
 		id uuid.UUID,
-	) (*domain.AccountDomain, *rest_errors.RestErr)
+	) (*domain.AccountDomain, *error)
 }

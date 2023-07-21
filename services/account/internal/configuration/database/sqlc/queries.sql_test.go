@@ -190,7 +190,7 @@ func TestFindAccountById(t *testing.T) {
 }
 
 func findFirstAccountIdHelper() (uuid.UUID, error) {
-	row := TestQueries.db.QueryRowContext(context.TODO(), "SELECT id FROM account LIMIT 1")
+	row := TestQueries.db.QueryRow(context.TODO(), "SELECT id FROM account LIMIT 1")
 	var accountUUID uuid.UUID
 	err := row.Scan(&accountUUID)
 	return accountUUID, err

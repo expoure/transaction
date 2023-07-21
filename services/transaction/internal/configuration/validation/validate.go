@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/expoure/pismo/transaction/internal/configuration/rest_errors"
+	"github.com/expoure/pismo/transaction/internal/configuration/customized_errors"
 
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/locales/en"
@@ -32,18 +32,18 @@ func init() {
 
 func ValidateTransactionError(
 	validation_err error,
-) *rest_errors.RestErr {
+) *customized_errors.RestErr {
 
 	var jsonErr *json.UnmarshalTypeError
 	var jsonValidationError validator.ValidationErrors
 
 	if errors.As(validation_err, &jsonErr) {
-		return rest_errors.NewBadRequestError("Invalid field type")
+		return customized_errors.NewBadRequestError("Invalid field type")
 	} else if errors.As(validation_err, &jsonValidationError) {
-		errorsCauses := []rest_errors.Causes{}
+		errorsCauses := []customized_errors.Causes{}
 
 		for _, e := range validation_err.(validator.ValidationErrors) {
-			cause := rest_errors.Causes{
+			cause := customized_errors.Causes{
 				Message: e.Translate(transl),
 				Field:   e.Field(),
 			}
@@ -51,8 +51,8 @@ func ValidateTransactionError(
 			errorsCauses = append(errorsCauses, cause)
 		}
 
-		return rest_errors.NewBadRequestValidationError("Some fields are invalid", errorsCauses)
+		return customized_errors.NewBadRequestValidationError("Some fields are invalid", errorsCauses)
 	} else {
-		return rest_errors.NewBadRequestError("Error trying to convert fields")
+		return customized_errors.NewBadRequestError("Error trying to convert fields")
 	}
 }

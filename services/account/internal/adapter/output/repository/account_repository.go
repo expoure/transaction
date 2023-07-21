@@ -2,44 +2,49 @@ package repository
 
 import (
 	"context"
-	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/Rhymond/go-money"
 	"github.com/expoure/pismo/account/internal/adapter/output/mapper"
 	"github.com/expoure/pismo/account/internal/application/domain"
 	"github.com/expoure/pismo/account/internal/application/port/output"
+	"github.com/expoure/pismo/account/internal/configuration/customized_errors"
 	"github.com/expoure/pismo/account/internal/configuration/database/custom_types"
 	"github.com/expoure/pismo/account/internal/configuration/database/sqlc"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
-	"github.com/expoure/pismo/account/internal/configuration/rest_errors"
 	"github.com/google/uuid"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"go.uber.org/zap"
 )
 
 const UPDATE_BALANCE_RETURNING_SQL = `
-	UPDATE account SET balance = ($1, $2), updated_at = NOW() WHERE id = $3 RETURING balance
+	UPDATE account 
+	SET balance = ($1, $2), updated_at = NOW() 
+	WHERE id = $3 
+	RETURNING balance;
 `
 
 func NewAccountRepository(
-	queries *sqlc.Queries,
-	databaseCon *sql.DB,
+	connPool *pgxpool.Pool,
 ) output.AccountRepositoryPort {
 	return &accountRepositoryImpl{
-		queries,
-		databaseCon,
+		queries:  sqlc.New(connPool),
+		connPool: connPool,
 	}
 }
 
 type accountRepositoryImpl struct {
-	queries     *sqlc.Queries
-	databaseCon *sql.DB
+	queries  *sqlc.Queries
+	connPool *pgxpool.Pool
 }
 
 func (ar *accountRepositoryImpl) CreateAccount(
 	accountDomain domain.AccountDomain,
-) (*domain.AccountDomain, *rest_errors.RestErr) {
+) (*domain.AccountDomain, *error) {
 	logger.Info("Init createAccount repository",
 		zap.String("journey", "createAccount"))
 
@@ -52,7 +57,11 @@ func (ar *accountRepositoryImpl) CreateAccount(
 		logger.Error("Error trying to create account",
 			err,
 			zap.String("journey", "createAccount"))
-		return nil, rest_errors.NewInternalServerError(err.Error())
+		var e *pgconn.PgError
+		if errors.As(err, &e) && e.Code == "23505" {
+			return nil, &customized_errors.DuplicateKey
+		}
+		return nil, &err
 	}
 
 	return mapper.MapEntityToDomain(result), nil
@@ -60,7 +69,7 @@ func (ar *accountRepositoryImpl) CreateAccount(
 
 func (ar *accountRepositoryImpl) FindAccountByDocumentNumber(
 	documentNumber string,
-) (*domain.AccountDomain, *rest_errors.RestErr) {
+) (*domain.AccountDomain, *error) {
 	logger.Info("Init FindAccountByDocumentNumber repository",
 		zap.String("journey", "FindAccountByDocumentNumber"))
 
@@ -73,7 +82,10 @@ func (ar *accountRepositoryImpl) FindAccountByDocumentNumber(
 		logger.Error("Error trying to FindAccountByDocumentNumber",
 			err,
 			zap.String("journey", "FindAccountByDocumentNumber"))
-		return nil, rest_errors.NewInternalServerError(err.Error())
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, &customized_errors.EntityNotFound
+		}
+		return nil, &err
 	}
 
 	return mapper.MapEntityToDomain(result), nil
@@ -81,7 +93,7 @@ func (ar *accountRepositoryImpl) FindAccountByDocumentNumber(
 
 func (ar *accountRepositoryImpl) FindAccountByID(
 	id uuid.UUID,
-) (*domain.AccountDomain, *rest_errors.RestErr) {
+) (*domain.AccountDomain, *error) {
 	logger.Info("Init FindAccountByID repository",
 		zap.String("journey", "FindAccountByID"))
 
@@ -96,7 +108,11 @@ func (ar *accountRepositoryImpl) FindAccountByID(
 		logger.Error("Error trying to FindAccountByID",
 			err,
 			zap.String("journey", "FindAccountByID"))
-		return nil, rest_errors.NewInternalServerError(err.Error())
+
+		if err.Error() == pgx.ErrNoRows.Error() {
+			return nil, &customized_errors.EntityNotFound
+		}
+		return nil, &err
 	}
 
 	return mapper.MapEntityToDomain(result), nil
@@ -105,12 +121,12 @@ func (ar *accountRepositoryImpl) FindAccountByID(
 func (ar *accountRepositoryImpl) UpdateAccountBalanceByID(
 	id uuid.UUID,
 	transactionAmount int64,
-) (*money.Money, *rest_errors.RestErr) {
+) (*money.Money, *error) {
 	logger.Info("Init UpdateAccountBalance repository",
 		zap.String("journey", "UpdateAccountBalance"))
 
 	// tenho que colocar um mutex aqui
-	row := ar.databaseCon.QueryRowContext(
+	row := ar.connPool.QueryRow(
 		context.Background(),
 		UPDATE_BALANCE_RETURNING_SQL,
 		transactionAmount,
@@ -128,13 +144,13 @@ func (ar *accountRepositoryImpl) UpdateAccountBalanceByID(
 		logger.Error("Error trying to UpdateAccountBalance",
 			err,
 			zap.String("journey", "UpdateAccountBalance"))
-		return nil, rest_errors.NewInternalServerError(err.Error())
+		return nil, &err
 	}
 
 	return money.New(balance.Amount, balance.Currency), nil
 }
 
-func (ar *accountRepositoryImpl) FindAccountBalanceByID(id uuid.UUID) (*money.Money, *rest_errors.RestErr) {
+func (ar *accountRepositoryImpl) FindAccountBalanceByID(id uuid.UUID) (*money.Money, *error) {
 	logger.Info("Init FindAccountBalanceByID repository",
 		zap.String("journey", "FindAccountBalanceByID"))
 
@@ -147,7 +163,7 @@ func (ar *accountRepositoryImpl) FindAccountBalanceByID(id uuid.UUID) (*money.Mo
 		logger.Error("Error trying to FindAccountBalanceByID",
 			err,
 			zap.String("journey", "FindAccountBalanceByID"))
-		return nil, rest_errors.NewInternalServerError(err.Error())
+		return nil, &err
 	}
 
 	return money.New(result.Amount, result.Currency), nil

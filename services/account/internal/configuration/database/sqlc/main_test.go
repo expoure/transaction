@@ -1,17 +1,18 @@
 package sqlc
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"testing"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
 )
 
 var TestQueries *Queries
-var TestDB *sql.DB
+var TestDB *pgxpool.Pool
 
 func TestMain(m *testing.M) {
 	var (
@@ -23,13 +24,14 @@ func TestMain(m *testing.M) {
 	)
 
 	strConn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", HOST, PORT, USER, PASSWORD, DATABASE)
-	conn, err := sql.Open("postgres", strConn)
+
+	conn, err := pgxpool.New(context.Background(), strConn)
 
 	if err != nil {
 		log.Fatal("Can not connect to database", err)
 	}
 
-	err = conn.Ping()
+	err = conn.Ping(context.Background())
 	if err != nil {
 		log.Fatal("Can not ping database", err)
 	}
