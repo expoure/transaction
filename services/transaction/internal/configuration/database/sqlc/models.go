@@ -5,11 +5,11 @@
 package sqlc
 
 import (
-	"database/sql"
 	"time"
 
 	custom_types "github.com/expoure/pismo/transaction/internal/configuration/database/custom_types"
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type OperationType struct {
@@ -20,7 +20,7 @@ type OperationType struct {
 type Transaction struct {
 	ID              uuid.UUID
 	AccountID       uuid.UUID
-	OperationTypeID sql.NullInt32
+	OperationTypeID pgtype.Int4
 	Amount          *custom_types.Money
 	EventDate       time.Time
 }

@@ -20,10 +20,10 @@ services:
       - ./.docker/pg-data-account:/var/lib/postgresql/data
       - ./services/account/internal/sql/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  account-db-test:
+  db-test:
     image: postgres:15.3
-    hostname: account-db-test
-    container_name: account-db-test
+    hostname: db-test
+    container_name: db-test
     networks:
       - internal-net
     ports:
@@ -34,7 +34,8 @@ services:
       - POSTGRES_DB=test
     tty: true
     volumes:
-      - ./services/account/internal/sql/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./services/account/internal/sql/schema/init.sql:/docker-entrypoint-initdb.d/init_account.sql
+      - ./services/transaction/internal/sql/schema/init.sql:/docker-entrypoint-initdb.d/init_transaction.sql
 
   transaction-db:
     image: postgres:15.3
@@ -52,25 +53,6 @@ services:
     volumes:
       - ./.docker/pg-data-transaction:/var/lib/postgresql/data
       - ./services/transaction/internal/sql/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
-
-  # audit-db:
-  #  image: mongo
-  #  hostname: audit-db
-  #  container_name: audit-db
-  #  restart: always
-  #  networks:
-  #    - internal-net
-  #  ports:
-  #    - 27017:27017
-  #  environment:
-  #    - MONGO_INITDB_ROOT_USERNAME=root
-  #    - MONGO_INITDB_ROOT_PASSWORD=Pa55word
-  #    - MONGO_INITDB_DATABASE=db_audit
-  #    - MONGO_USERNAME=admin
-  #    - MONGO_PASSWORD=example
-  #  volumes:
-  #    - ./.docker/mongo-data:/data/db
-  #    - ./.docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 
   account-ms:
     container_name: account-ms

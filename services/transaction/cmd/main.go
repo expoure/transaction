@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -14,10 +13,10 @@ import (
 	"github.com/expoure/pismo/transaction/internal/adapter/output/repository"
 	service "github.com/expoure/pismo/transaction/internal/application/services"
 	"github.com/expoure/pismo/transaction/internal/configuration/database/postgres"
-	"github.com/expoure/pismo/transaction/internal/configuration/database/sqlc"
 	"github.com/expoure/pismo/transaction/internal/configuration/logger"
 	"github.com/expoure/pismo/transaction/internal/configuration/message_broker"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
@@ -30,19 +29,19 @@ func main() {
 		return
 	}
 
-	databaseCon, err := postgres.NewPostgresConnection(context.Background())
+	connPool, err := postgres.NewPostgresConnection(context.Background())
 	if err != nil {
 		log.Fatalf(
 			"Error trying to connect to database, error=%s \n",
 			err.Error())
 		return
 	}
-	defer databaseCon.Close()
+	defer connPool.Close()
 
 	producer := message_broker.GetKafkaProducer()
 	defer message_broker.CloseKafkaConnections()
 
-	transactionController := initDependencies(databaseCon, producer)
+	transactionController := initDependencies(connPool, producer)
 
 	router := gin.Default()
 	group := router.Group("/v1/transactions")
@@ -58,11 +57,10 @@ func main() {
 }
 
 func initDependencies(
-	databaseConn *sql.DB,
+	connPool *pgxpool.Pool,
 	messageProducer *kafka.Producer,
 ) controller.TransactionControllerInterface {
-	queries := sqlc.New(databaseConn)
-	transactionRepo := repository.NewTransactionRepository(queries, databaseConn)
+	transactionRepo := repository.NewTransactionRepository(connPool)
 	transactionProducer := producer.NewTransactionProducer(messageProducer)
 	transactionService := service.NewTransactionDomainService(transactionRepo, transactionProducer)
 	return controller.NewTransactionControllerInterface(transactionService)

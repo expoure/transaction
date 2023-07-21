@@ -6,7 +6,9 @@ sql: [
     schema: "/internal/sql/schema/init.sql",
     gen: { 
       go: { 
+        emit_interface: true,
         package: "sqlc", 
+        sql_package: "pgx/v5",
         out: "/internal/configuration/database/sqlc",
         overrides: [
           {
@@ -16,8 +18,23 @@ sql: [
               package: "custom_types",
               type: "Money",
               pointer: true
+            },
+          },
+          {
+            db_type:  "uuid",
+            go_type: {
+              package: "uuid",
+              import: "github.com/google/uuid",
+              type: "UUID"
             }
-          }
+          },
+          {
+            db_type: "timestamptz",
+            engine: "postgres",
+            go_type: {
+              type: "time.Time"
+            },
+          },
         ] 
       } 
     } 

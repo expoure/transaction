@@ -125,7 +125,6 @@ func (ar *accountRepositoryImpl) UpdateAccountBalanceByID(
 	logger.Info("Init UpdateAccountBalance repository",
 		zap.String("journey", "UpdateAccountBalance"))
 
-	// tenho que colocar um mutex aqui
 	row := ar.connPool.QueryRow(
 		context.Background(),
 		UPDATE_BALANCE_RETURNING_SQL,

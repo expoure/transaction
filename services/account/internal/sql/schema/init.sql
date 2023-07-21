@@ -1,9 +1,16 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TYPE CMONEY AS (
-  amount BIGINT,
-  currency VARCHAR(3)
-);
+DO
+$$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'cmoney') THEN
+        CREATE TYPE CMONEY AS (
+          amount BIGINT,
+          currency VARCHAR(3)
+        );
+    END IF;
+END;
+$$;
 
 CREATE TABLE account(
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

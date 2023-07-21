@@ -13,14 +13,14 @@ type Money struct {
 }
 
 func (a *Money) Scan(value interface{}) error {
-	byteData, ok := value.([]byte)
+	stringData, ok := value.(string)
 	if !ok {
 		fmt.Println("Asseertion error")
 		return errors.New("Assertion error")
 	}
 
 	// Remove "()" from composite type
-	dataString := strings.Trim(string(byteData), "()")
+	dataString := strings.Trim(string(stringData), "()")
 	values := strings.Split(dataString, ",")
 
 	amount, err := strconv.ParseInt(values[0], 10, 64)

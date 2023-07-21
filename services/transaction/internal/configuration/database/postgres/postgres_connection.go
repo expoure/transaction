@@ -2,10 +2,10 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"os"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
 )
 
@@ -15,7 +15,7 @@ const (
 	SslDisable SSLMode = "disable"
 )
 
-func NewPostgresConnection(ctx context.Context) (*sql.DB, error) {
+func NewPostgresConnection(ctx context.Context) (*pgxpool.Pool, error) {
 	var (
 		HOST     = os.Getenv("POSTGRES_HOST")
 		PORT     = os.Getenv("POSTGRES_PORT")
@@ -25,7 +25,8 @@ func NewPostgresConnection(ctx context.Context) (*sql.DB, error) {
 	)
 
 	strConn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", HOST, PORT, USER, PASSWORD, DATABASE, SslDisable)
-	db, err := sql.Open("postgres", strConn)
+	db, err := pgxpool.New(context.Background(), strConn)
+
 	if err != nil {
 		panic(err)
 	}

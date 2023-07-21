@@ -1,11 +1,10 @@
 package mapper
 
 import (
-	"database/sql"
-
 	"github.com/expoure/pismo/transaction/internal/adapter/output/model/entity"
 	"github.com/expoure/pismo/transaction/internal/application/domain"
 	"github.com/expoure/pismo/transaction/internal/configuration/database/custom_types"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func MapDomainToEntity(
@@ -14,7 +13,7 @@ func MapDomainToEntity(
 	return &entity.TransactionEntity{
 		ID:              domain.ID,
 		AccountID:       domain.AccountID,
-		OperationTypeID: sql.NullInt32{Int32: domain.OperationTypeID, Valid: true},
+		OperationTypeID: pgtype.Int4{Int32: domain.OperationTypeID, Valid: true},
 		EventDate:       domain.EventDate,
 		Amount: &custom_types.Money{
 			Amount:   domain.Amount.Amount(),

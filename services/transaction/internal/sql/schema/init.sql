@@ -1,9 +1,17 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TYPE CMONEY AS (
-  amount BIGINT,
-  currency VARCHAR(3)
-);
+DO
+$$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'cmoney') THEN
+        CREATE TYPE CMONEY AS (
+          amount BIGINT,
+          currency VARCHAR(3)
+        );
+    END IF;
+END;
+$$;
+
 
 CREATE TABLE operation_type(
   id SERIAL PRIMARY KEY NOT NULL,
@@ -19,6 +27,6 @@ CREATE TABLE transaction(
   account_id UUID NOT NULL,
   operation_type_id INTEGER REFERENCES operation_type(id),
   amount CMONEY NOT NULL,
-  event_date TIMESTAMP NOT NULL
+  event_date TIMESTAMPTZ NOT NULL
 );
 

@@ -8,7 +8,7 @@ package sqlc
 import (
 	"context"
 
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
 )
 
 const listTransactions = `-- name: ListTransactions :many
@@ -16,7 +16,7 @@ SELECT id, account_id, operation_type_id, amount, event_date FROM transaction WH
 `
 
 func (q *Queries) ListTransactions(ctx context.Context, accountID uuid.UUID) ([]Transaction, error) {
-	rows, err := q.db.QueryContext(ctx, listTransactions, accountID)
+	rows, err := q.db.Query(ctx, listTransactions, accountID)
 	if err != nil {
 		return nil, err
 	}
@@ -34,9 +34,6 @@ func (q *Queries) ListTransactions(ctx context.Context, accountID uuid.UUID) ([]
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
