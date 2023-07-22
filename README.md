@@ -42,7 +42,7 @@ make run-db-tests
 
 ### Unitários:
 ```bash
-make TODO
+make run-unit-tests
 ```
 
 ## Arquitetura
