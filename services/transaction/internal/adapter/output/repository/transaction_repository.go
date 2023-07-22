@@ -11,6 +11,7 @@ import (
 	"github.com/expoure/pismo/transaction/internal/configuration/database/sqlc"
 	"github.com/expoure/pismo/transaction/internal/configuration/logger"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"go.uber.org/zap"
@@ -43,7 +44,7 @@ type transactionRepositoryImpl struct {
 
 func (tr *transactionRepositoryImpl) CreateTransaction(
 	transactionDomain domain.TransactionDomain,
-) (*domain.TransactionDomain, *customized_errors.RestErr) {
+) (*domain.TransactionDomain, *error) {
 	logger.Info("Init CreateTransaction repository",
 		zap.String("journey", "createTransaction"))
 
@@ -71,7 +72,7 @@ func (tr *transactionRepositoryImpl) CreateTransaction(
 		logger.Error("Error trying to create transaction",
 			err,
 			zap.String("journey", "createTransaction"))
-		return nil, customized_errors.NewInternalServerError(err.Error())
+		return nil, &err
 	}
 
 	return mapper.MapEntityToDomain(transaction), nil
@@ -80,7 +81,7 @@ func (tr *transactionRepositoryImpl) CreateTransaction(
 
 func (tr *transactionRepositoryImpl) ListTransactionsByAccountID(
 	id uuid.UUID,
-) (*[]domain.TransactionDomain, *customized_errors.RestErr) {
+) (*[]domain.TransactionDomain, *error) {
 	logger.Info("Init ListTransactionsByAccountID repository",
 		zap.String("journey", "ListTransactionsByAccountID"))
 
@@ -93,7 +94,10 @@ func (tr *transactionRepositoryImpl) ListTransactionsByAccountID(
 		logger.Error("Error trying to list transactions",
 			err,
 			zap.String("journey", "ListTransactionsByAccountID"))
-		return nil, customized_errors.NewInternalServerError(err.Error())
+		if err.Error() == pgx.ErrNoRows.Error() {
+			return nil, &customized_errors.EntityNotFound
+		}
+		return nil, &err
 	}
 
 	transactionsDomain := []domain.TransactionDomain{}

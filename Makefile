@@ -28,3 +28,8 @@ run-db-tests:
 	@printf "Down and removing the test database"
 	@docker compose stop db-test
 	@docker compose rm -f db-test
+
+run-unit-tests:
+	@printf "Running unit tests\n"
+	@cd services/account; go test -cover ./internal/application/services; cd ../..
+	@cd services/transaction; go test -cover ./internal/application/services; cd ../..
