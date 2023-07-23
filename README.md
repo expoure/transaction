@@ -13,6 +13,7 @@
 - [Arquitetura](#arquitetura)
 - [Tecnologias usadas](#tecnologias-usadas)
 - [Escolhas técnicas](#escolhas-técnicas)
+    * [Hexagonal](#hexagonal)
     * [Microservices](#microservice)
     * [Api-Gateway](#api-gateway)
     * [Dinheiro do tipo...INTEGER!](#dinheiro-do-tipointeger)
@@ -106,7 +107,11 @@ make run-unit-tests
 
 ## Escolhas técnicas
 
-### Microservice:
+### Hexagonal
+Este _design_ de arquitetura nos ajuda com a testabilidade e flexibilidade da nossa aplicação, possibilitando uma atenção maior
+ ao seu domínio sem preocupações com o que está fora dele.
+ 
+### Microservice
 
 Arquitetura escolhida pela escabilidade, modularidade, elasticidade, tolerância a falhas, testabilidade e confiabilidade.
 
