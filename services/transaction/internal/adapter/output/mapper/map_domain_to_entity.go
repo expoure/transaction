@@ -15,7 +15,7 @@ func MapDomainToEntity(
 		AccountID:       domain.AccountID,
 		OperationTypeID: pgtype.Int4{Int32: domain.OperationTypeID, Valid: true},
 		EventDate:       domain.EventDate,
-		Amount: &custom_types.Money{
+		Amount: custom_types.Money{
 			Amount:   domain.Amount.Amount(),
 			Currency: domain.Amount.Currency().Code,
 		},

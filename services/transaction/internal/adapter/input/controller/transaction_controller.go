@@ -56,7 +56,7 @@ func (ac *transactionControllerImpl) CreateTransaction(c *gin.Context) {
 		AccountID:       accountId,
 		OperationTypeID: transactionRequest.OperationTypeID,
 		EventDate:       time.Now(),
-		Amount:          money.NewFromFloat(transactionRequest.Amount, money.BRL),
+		Amount:          *money.NewFromFloat(transactionRequest.Amount, money.BRL),
 	}
 
 	domainResult, err := ac.service.CreateTransactionServices(transactionDomain)

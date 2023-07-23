@@ -14,7 +14,7 @@ func MapEntityToDomain(
 		AccountID:       entity.AccountID,
 		OperationTypeID: entity.OperationTypeID.Int32,
 		EventDate:       entity.EventDate,
-		Amount:          money.New(entity.Amount.Amount, entity.Amount.Currency),
+		Amount:          *money.New(entity.Amount.Amount, entity.Amount.Currency),
 	}
 
 	return domainConverted

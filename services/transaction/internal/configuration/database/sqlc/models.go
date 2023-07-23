@@ -21,6 +21,6 @@ type Transaction struct {
 	ID              uuid.UUID
 	AccountID       uuid.UUID
 	OperationTypeID pgtype.Int4
-	Amount          *custom_types.Money
+	Amount          custom_types.Money
 	EventDate       time.Time
 }

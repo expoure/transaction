@@ -13,6 +13,18 @@ type Money struct {
 }
 
 func (a *Money) Scan(value interface{}) error {
+
+	// Adicionado para tratar o caso do mock do pgx
+	if ptr, ok := value.(*Money); ok {
+		aaa := Money{
+			Amount:   ptr.Amount,
+			Currency: ptr.Currency,
+		}
+		*a = aaa
+
+		return nil
+	}
+
 	stringData, ok := value.(string)
 	if !ok {
 		fmt.Println("Asseertion error")
@@ -37,5 +49,6 @@ func (a *Money) Scan(value interface{}) error {
 	}
 
 	*a = res
+
 	return nil
 }

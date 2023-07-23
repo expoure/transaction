@@ -17,7 +17,7 @@ sql: [
               import: "github.com/expoure/pismo/transaction/internal/configuration/database/custom_types",
               package: "custom_types",
               type: "Money",
-              pointer: true
+              pointer: false
             },
           },
           {

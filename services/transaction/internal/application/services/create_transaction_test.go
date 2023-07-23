@@ -106,6 +106,6 @@ func getTransactionDomain(amount *money.Money, operationTypeID int32) *domain.Tr
 		AccountID:       uuid.New(),
 		OperationTypeID: operationTypeID,
 		EventDate:       time.Now(),
-		Amount:          amount,
+		Amount:          *amount,
 	}
 }

@@ -11,7 +11,7 @@ type TransactionDomain struct {
 	ID              uuid.UUID
 	AccountID       uuid.UUID
 	OperationTypeID int32
-	Amount          *money.Money
+	Amount          money.Money
 	EventDate       time.Time
 }
 

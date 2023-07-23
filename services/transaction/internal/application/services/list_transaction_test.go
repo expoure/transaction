@@ -27,13 +27,13 @@ func Test_transactionDomainService_ListTransactionsService(t *testing.T) {
 				AccountID:       accountId,
 				OperationTypeID: 1,
 				EventDate:       time.Now(),
-				Amount:          money.New(100, "BRL"),
+				Amount:          *money.New(100, "BRL"),
 			},
 			{
 				AccountID:       accountId,
 				OperationTypeID: 2,
 				EventDate:       time.Now(),
-				Amount:          money.New(200, "BRL"),
+				Amount:          *money.New(200, "BRL"),
 			},
 		}
 

@@ -33,3 +33,4 @@ run-unit-tests:
 	@printf "Running unit tests\n"
 	@cd services/account; go test -cover ./internal/application/services; cd ../..
 	@cd services/transaction; go test -cover ./internal/application/services; cd ../..
+	@cd services/transaction; go test -cover ./internal/adapter/output/repository; cd ../..
