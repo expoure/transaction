@@ -3,8 +3,10 @@
 ## Index
 
 - [Executando](#executando)
+  * [Variáveis de ambiente](#variáveis-de-ambiente)
   * [Makefile](#makefile)
   * [Prefiro eu mesmo fazer](#prefiro-eu-mesmo-fazer)
+  * [Utilizando as APIs](#utilizando-as-apis)
 - [Testes](#testes)
   * [Integração com Banco Postgres](#integração-com-db)
   * [Unitários](#unitários)
@@ -16,7 +18,14 @@
     * [Dinheiro do tipo...INTEGER!](#dinheiro-do-tipointeger)
     * [Event-Driven](#event-driven)
 
-## Executando;
+## Executando
+
+### Variáveis de ambiente
+
+Certifique-se que as variáveis de ambiente utilizadas, especialmente aquelas que dizem respeito às portas, não irão conflitar com algum outro serviço da sua máquina.
+os arquivos podem ser encontrados em:
+`services/*/.env`.
+
 
 ### Makefile
 
@@ -32,6 +41,43 @@ docker network create internal-net
 docker compose up -d --scale kafkaui=0
 ```
 Dessa forma, a rede docker que o projeto necessita será criada e o container do [kafka-ui](https://github.com/provectus/kafka-ui) será ignorado, uma vez que está presente no projeto apenas para **acompanhamento** do fluxo de eventos.
+
+### Utilizando as APIs
+
+Você pode importar a _collection_ do Insomnia localizado neste repositório ou utilizar os comandos abaixo direto no terminal.
+**Necessita de curl instalado!**
+
+#### Criando _account_
+
+```bash
+curl --request POST \
+  --url http://localhost:8080/v1/accounts \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"documentNumber": "12348378734"
+}'
+```
+
+#### Buscando _account_ por _id_
+
+```bash
+curl --request GET \
+  --url http://localhost:8080/v1/accounts/seu-uuid-aqui
+```
+
+#### Criando _transaction_ para _account_
+
+```bash
+curl --request POST \
+  --url http://localhost:8080/v1/transactions \
+  --header 'Content-Type: application/json' \
+  --data '{
+	"accountId": "seu-uuid-aqui",
+	"operationTypeId": 1,
+	"amount": -5.00
+}'
+```
+
 
 ## Testes:
 
