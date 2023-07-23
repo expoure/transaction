@@ -3,6 +3,7 @@ package service
 import (
 	"regexp"
 
+	"github.com/expoure/pismo/account/internal/application/constants"
 	"github.com/expoure/pismo/account/internal/application/domain"
 	"github.com/expoure/pismo/account/internal/configuration/customized_errors"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
@@ -26,10 +27,10 @@ func (ad *accountDomainService) CreateAccountServices(
 			zap.String("journey", "createAccount"))
 
 		if err == &customized_errors.DuplicateKey {
-			return nil, customized_errors.NewBadRequestError("This document number is already registered")
+			return nil, customized_errors.NewBadRequestError(constants.ErrDocumentNumberAlreadyRegistered)
 		}
 
-		return nil, customized_errors.NewInternalServerError("Was not possible to create account")
+		return nil, customized_errors.NewInternalServerError(constants.ErrWasNotPossibleToCreateAccount)
 	}
 	// criar evento de account_created
 
@@ -43,11 +44,11 @@ func (ad *accountDomainService) CreateAccountServices(
 
 func validateDocumentNumber(documentNumber string) *customized_errors.RestErr {
 	if documentNumber == "" {
-		return customized_errors.NewBadRequestError("Document number is required")
+		return customized_errors.NewBadRequestError(constants.ErrDocumentNumberIsRequire)
 	}
 	re := regexp.MustCompile(`^([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})$`)
 	if !re.MatchString(documentNumber) {
-		return customized_errors.NewBadRequestError("Invalid document number")
+		return customized_errors.NewBadRequestError(constants.ErrInvalidDocumentNumber)
 	}
 
 	return nil

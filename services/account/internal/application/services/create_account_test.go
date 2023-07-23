@@ -8,6 +8,7 @@ import (
 
 	"github.com/Rhymond/go-money"
 	mock_repository "github.com/expoure/pismo/account/internal/adapter/output/repository/mock"
+	"github.com/expoure/pismo/account/internal/application/constants"
 	"github.com/expoure/pismo/account/internal/application/domain"
 	"github.com/expoure/pismo/account/internal/configuration/customized_errors"
 	"github.com/google/uuid"
@@ -51,7 +52,7 @@ func Test_accountDomainService_CreateAccountServices(t *testing.T) {
 
 		_, err := ad.CreateAccountServices(accountToCreate)
 		require.NotNil(t, err)
-		require.ErrorContains(t, err, "Was not possible to create account")
+		require.ErrorContains(t, err, constants.ErrWasNotPossibleToCreateAccount)
 	})
 
 	t.Run("It errors when account already exists", func(t *testing.T) {
@@ -64,7 +65,7 @@ func Test_accountDomainService_CreateAccountServices(t *testing.T) {
 
 		require.NotNil(t, err)
 		require.IsType(t, &customized_errors.RestErr{}, err)
-		require.ErrorContains(t, err, "This document number is already registered")
+		require.ErrorContains(t, err, constants.ErrDocumentNumberAlreadyRegistered)
 	})
 
 	t.Run("It errors if documentNumber is invalid", func(t *testing.T) {
@@ -72,7 +73,7 @@ func Test_accountDomainService_CreateAccountServices(t *testing.T) {
 
 		require.NotNil(t, err)
 		require.IsType(t, &customized_errors.RestErr{}, err)
-		require.Equal(t, err.Message, "Invalid document number")
+		require.Equal(t, err.Message, constants.ErrInvalidDocumentNumber)
 	})
 
 	t.Run("It errors if documentNumber is empty", func(t *testing.T) {
@@ -80,6 +81,6 @@ func Test_accountDomainService_CreateAccountServices(t *testing.T) {
 
 		require.NotNil(t, err)
 		require.IsType(t, &customized_errors.RestErr{}, err)
-		require.Equal(t, err.Message, "Document number is required")
+		require.Equal(t, err.Message, constants.ErrDocumentNumberIsRequire)
 	})
 }

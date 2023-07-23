@@ -1,12 +1,12 @@
 package service
 
 import (
+	"errors"
 	"sync"
 	"testing"
 
 	"github.com/Rhymond/go-money"
 	mock_repository "github.com/expoure/pismo/account/internal/adapter/output/repository/mock"
-	"github.com/expoure/pismo/account/internal/application/port/output"
 	"github.com/expoure/pismo/account/internal/configuration/customized_errors"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
@@ -19,10 +19,11 @@ func Test_accountDomainService_UpdateAccountBalanceByIDServices(t *testing.T) {
 
 	repo := mock_repository.NewMockAccountRepositoryPort(control)
 
-	type fields struct {
-		repository output.AccountRepositoryPort
-		mutex      *sync.Mutex
+	ad := &accountDomainService{
+		repository: repo,
+		mutex:      &sync.Mutex{},
 	}
+
 	type args struct {
 		id                uuid.UUID
 		transactionAmount int64
@@ -31,17 +32,12 @@ func Test_accountDomainService_UpdateAccountBalanceByIDServices(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		fields  fields
 		args    args
 		want    *money.Money
 		wantErr bool
 	}{
 		{
 			name: "It update account balance with addition",
-			fields: fields{
-				mutex:      &sync.Mutex{},
-				repository: repo,
-			},
 			args: args{
 				id:                uuid.New(),
 				transactionAmount: 1000,
@@ -53,10 +49,6 @@ func Test_accountDomainService_UpdateAccountBalanceByIDServices(t *testing.T) {
 		},
 		{
 			name: "It update account balance with subtration",
-			fields: fields{
-				mutex:      &sync.Mutex{},
-				repository: repo,
-			},
 			args: args{
 				id:                uuid.New(),
 				transactionAmount: -800,
@@ -68,10 +60,6 @@ func Test_accountDomainService_UpdateAccountBalanceByIDServices(t *testing.T) {
 		},
 		{
 			name: "It errors when trying to update account balance with 0",
-			fields: fields{
-				mutex:      &sync.Mutex{},
-				repository: repo,
-			},
 			args: args{
 				id:                uuid.New(),
 				transactionAmount: 0,
@@ -87,10 +75,6 @@ func Test_accountDomainService_UpdateAccountBalanceByIDServices(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			repo.EXPECT().FindAccountBalanceByID(tt.args.id).Return(money.New(tt.args.currentAmount, "BRL"), nil).AnyTimes()
 			repo.EXPECT().UpdateAccountBalanceByID(tt.args.id, gomock.Eq(tt.args.newAmount)).Return(money.New(tt.args.newAmount, "BRL"), nil).AnyTimes()
-			ad := &accountDomainService{
-				repository: repo,
-				mutex:      tt.fields.mutex,
-			}
 
 			got, err := ad.UpdateAccountBalanceByIDServices(tt.args.id, tt.args.transactionAmount)
 
@@ -107,17 +91,28 @@ func Test_accountDomainService_UpdateAccountBalanceByIDServices(t *testing.T) {
 		accountUuid := uuid.New()
 		repo.EXPECT().FindAccountBalanceByID(gomock.Eq(accountUuid)).Return(nil, &customized_errors.EntityNotFound).AnyTimes()
 		repo.EXPECT().UpdateAccountBalanceByID(gomock.Eq(accountUuid), gomock.Eq(1)).Return(money.New(1, "BRL"), nil).AnyTimes()
-		ad := &accountDomainService{
-			repository: repo,
-			mutex:      &sync.Mutex{},
-		}
 
 		_, err := ad.UpdateAccountBalanceByIDServices(accountUuid, 1)
 
 		require.NotNil(t, err)
 		require.IsType(t, &customized_errors.RestErr{}, err)
 		require.Equal(t, "Account not found", err.Error())
-		// require.NotNil(t, err)
-		// require.ErrorContains(t, err, "account not found")
+	})
+
+	t.Run("It errors unknown when trying to update the balance of an account - findAccountBalanceByID", func(t *testing.T) {
+		unknownError := errors.New("unknow error")
+		repo.EXPECT().FindAccountBalanceByID(gomock.Any()).Return(nil, &unknownError)
+
+		_, err := ad.UpdateAccountBalanceByIDServices(uuid.New(), 1)
+		require.NotNil(t, err)
+	})
+
+	t.Run("It errors unknown when trying to update the balance of an account - updateAccountBalanceByID", func(t *testing.T) {
+		unknownError := errors.New("unknow error")
+		repo.EXPECT().FindAccountBalanceByID(gomock.Any()).Return(money.New(1, "BRL"), nil)
+		repo.EXPECT().UpdateAccountBalanceByID(gomock.Any(), gomock.Any()).Return(nil, &unknownError)
+
+		_, err := ad.UpdateAccountBalanceByIDServices(uuid.New(), 1)
+		require.NotNil(t, err)
 	})
 }

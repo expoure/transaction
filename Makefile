@@ -9,7 +9,7 @@ up-all:
 	else \
 		echo "Network $(NETWORK_NAME) already exists." ; \
 	fi
-	@docker compose up -d --scale kafkaui=0
+	@docker compose up -d --scale kafkaui=0 --scale db-test=0
 	@printf "Up and running"
 
 run-db-tests:

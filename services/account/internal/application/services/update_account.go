@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/Rhymond/go-money"
+	"github.com/expoure/pismo/account/internal/application/constants"
 	"github.com/expoure/pismo/account/internal/configuration/customized_errors"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
 	"github.com/google/uuid"
@@ -36,7 +37,7 @@ func (ad *accountDomainService) UpdateAccountBalanceByIDServices(
 		logger.Error("Error trying to call repository",
 			*err,
 			zap.String("journey", "updateAccountBalance"))
-		return nil, customized_errors.NewInternalServerError("")
+		return nil, customized_errors.NewInternalServerError(constants.ErrWasNotPossibleToUpdateAccountBalance)
 	}
 	// criar evento de balance_updated
 

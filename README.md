@@ -39,9 +39,9 @@ make up-all
 Caso prefira subir o ambiente sem o _Makefile_ acima:
 ```bash
 docker network create internal-net
-docker compose up -d --scale kafkaui=0
+docker compose up -d --scale kafkaui=0 --scale db-test=0
 ```
-Dessa forma, a rede docker que o projeto necessita será criada e o container do [kafka-ui](https://github.com/provectus/kafka-ui) será ignorado, uma vez que está presente no projeto apenas para **acompanhamento** do fluxo de eventos.
+Dessa forma, a rede docker que o projeto necessita será criada e o container do [kafka-ui](https://github.com/provectus/kafka-ui) e do banco de teste serão ignorados, uma vez que estão presentes no projeto apenas para **acompanhamento** do fluxo de eventos e para a execução dos testes de integração.
 
 ### Utilizando as APIs
 

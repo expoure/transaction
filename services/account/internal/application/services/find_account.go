@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 
+	"github.com/expoure/pismo/account/internal/application/constants"
 	"github.com/expoure/pismo/account/internal/application/domain"
 	"github.com/expoure/pismo/account/internal/configuration/customized_errors"
 	"github.com/expoure/pismo/account/internal/configuration/logger"
@@ -41,7 +42,7 @@ func (ad *accountDomainService) FindAccountByDocumentNumberServices(
 
 func handleFindError(err *error) (*domain.AccountDomain, *customized_errors.RestErr) {
 	if errors.Is(*err, customized_errors.EntityNotFound) {
-		return nil, customized_errors.NewBadRequestError("Account not found")
+		return nil, customized_errors.NewBadRequestError(constants.ErrAccountNotFound)
 	}
-	return nil, customized_errors.NewInternalServerError("Internal Server Error")
+	return nil, customized_errors.NewInternalServerError(constants.ErrInternalServerError)
 }
