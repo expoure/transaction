@@ -14,7 +14,7 @@ func (td *transactionDomainService) CreateTransactionServices(
 	logger.Info("Init createTransaction service.",
 		zap.String("journey", "createTransaction"))
 
-	if err := validateTransaction(&transactionDomain); err != nil {
+	if err := td.validateTransaction(&transactionDomain); err != nil {
 		return nil, err
 	}
 
@@ -38,13 +38,26 @@ func (td *transactionDomainService) CreateTransactionServices(
 	return transaction, nil
 }
 
-func validateTransaction(transaction *domain.TransactionDomain) *customized_errors.RestErr {
+func (td *transactionDomainService) checkIfAcountHasEnoughMoney(transactionDomain *domain.TransactionDomain) *customized_errors.RestErr {
+	account, err := td.accountClient.GetAccount(transactionDomain.AccountID.String())
+	if err != nil {
+		return customized_errors.NewInternalServerError(constants.ErrWasNotPossibleToCreateTransaction)
+	}
+	if account.Balance.SmallUnitAmount < -transactionDomain.Amount.Amount() {
+		return customized_errors.NewBadRequestError(constants.ErrNotEnoughMoney)
+	}
+
+	return nil
+}
+
+func (td *transactionDomainService) validateTransaction(transaction *domain.TransactionDomain) *customized_errors.RestErr {
 	switch transaction.OperationTypeID {
 
 	case constants.OperationPayCash, constants.OperationPayInstallments, constants.OperationWithdraw:
 		if transaction.Amount.Amount() >= 0 {
 			return customized_errors.NewBadRequestError(constants.InvalidOutboundOperation)
 		}
+		return td.checkIfAcountHasEnoughMoney(transaction)
 
 	case constants.OperationPayment:
 		if transaction.Amount.Amount() <= 0 {

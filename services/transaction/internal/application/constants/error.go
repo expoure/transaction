@@ -6,4 +6,5 @@ const (
 	InvalidOperation                     = "Operation invalid"
 	ErrWasNotPossibleToCreateTransaction = "Was not possible to create transaction"
 	ErrWasNotPossibleToListTransactions  = "Was not possible to list transactions"
+	ErrNotEnoughMoney                    = "Account does not have enough money for outbound transaction"
 )

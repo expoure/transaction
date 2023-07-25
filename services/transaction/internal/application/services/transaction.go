@@ -8,14 +8,17 @@ import (
 func NewTransactionDomainService(
 	transactionRepository output.TransactionRepository,
 	transactionProducer output.TransactionProducer,
+	accountClient output.AccountHttpClient,
 ) input.TransactionDomainService {
 	return &transactionDomainService{
 		transactionRepository,
 		transactionProducer,
+		accountClient,
 	}
 }
 
 type transactionDomainService struct {
-	repository output.TransactionRepository
-	producer   output.TransactionProducer
+	repository    output.TransactionRepository
+	producer      output.TransactionProducer
+	accountClient output.AccountHttpClient
 }

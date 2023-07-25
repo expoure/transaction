@@ -9,6 +9,7 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/expoure/pismo/transaction/internal/adapter/input/controller"
 	"github.com/expoure/pismo/transaction/internal/adapter/input/controller/routes"
+	"github.com/expoure/pismo/transaction/internal/adapter/output/http_client"
 	"github.com/expoure/pismo/transaction/internal/adapter/output/producer"
 	"github.com/expoure/pismo/transaction/internal/adapter/output/repository"
 	service "github.com/expoure/pismo/transaction/internal/application/services"
@@ -62,6 +63,10 @@ func initDependencies(
 ) controller.TransactionControllerInterface {
 	transactionRepo := repository.NewTransactionRepository(connPool)
 	transactionProducer := producer.NewTransactionProducer(messageProducer)
-	transactionService := service.NewTransactionDomainService(transactionRepo, transactionProducer)
+	transactionService := service.NewTransactionDomainService(
+		transactionRepo,
+		transactionProducer,
+		http_client.NewAccountHttpClient(),
+	)
 	return controller.NewTransactionControllerInterface(transactionService)
 }
