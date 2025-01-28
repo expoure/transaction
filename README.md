@@ -1,54 +1,55 @@
-# Pismo - Rotina de Transações
+# Pismo - Transaction Routine
 
 ## Index
 
-- [Executando](#executando)
-  * [Variáveis de ambiente](#variáveis-de-ambiente)
+- [Running](#running)
+  * [Environment Variables](#environment-variables)
   * [Makefile](#makefile)
-  * [Prefiro eu mesmo fazer](#prefiro-eu-mesmo-fazer)
-  * [Utilizando as APIs](#utilizando-as-apis)
-- [Testes](#testes)
-  * [Integração com Banco Postgres](#integração-com-db)
-  * [Unitários](#unitários)
-- [Arquitetura](#arquitetura)
-- [Tecnologias usadas](#tecnologias-usadas)
-- [Escolhas técnicas](#escolhas-técnicas)
+  * [I Prefer Doing It Myself](#i-prefer-doing-it-myself)
+  * [Using the APIs](#using-the-apis)
+- [Tests](#tests)
+  * [Postgres DB Integration](#integrated)
+  * [Unit Tests](#unit)
+- [Architecture](#architecture)
+- [Technologies Used](#technologies-used)
+- [Technical Choices](#technical-choices)
     * [Hexagonal](#hexagonal)
-    * [Microservices](#microservice)
-    * [Api-Gateway](#api-gateway)
-    * [Dinheiro do tipo...INTEGER!](#dinheiro-do-tipointeger)
+    * [Microservices](#microservices)
+    * [API Gateway](#api-gateway)
+    * [Money as...INTEGER!](#money-as-integer)
     * [Event-Driven](#event-driven)
 
-## Executando
+## Running
 
-### Variáveis de ambiente
+### Environment Variables
 
-Certifique-se que as variáveis de ambiente utilizadas, especialmente aquelas que dizem respeito às portas, não irão conflitar com algum outro serviço da sua máquina.
-os arquivos podem ser encontrados em:
+Ensure that the environment variables used, especially those related to ports, do not conflict with any other services on your machine.  
+The files can be found in:  
 `services/*/.env`.
 
 
 ### Makefile
 
-O comando abaixo irá subir todos os serviços _docker_ necessários:
+The command below will start all the necessary _Docker_ services:  
 ```bash
 make up-all
 ```
-### Prefiro eu mesmo fazer
 
-Caso prefira subir o ambiente sem o _Makefile_ acima:
+### I Prefer Doing It Myself
+
+If you prefer to set up the environment without using the _Makefile_ above:
 ```bash
 docker network create internal-net
 docker compose up -d --scale kafkaui=0 --scale db-test=0
 ```
-Dessa forma, a rede docker que o projeto necessita será criada e o container do [kafka-ui](https://github.com/provectus/kafka-ui) e do banco de teste serão ignorados, uma vez que estão presentes no projeto apenas para **acompanhamento** do fluxo de eventos e para a execução dos testes de integração.
+This way, the Docker network required by the project will be created, and the containers for [kafka-ui](https://github.com/provectus/kafka-ui) and the test database will be ignored, as they are included in the project solely for **monitoring** the event flow and running integration tests.
 
-### Utilizando as APIs
+### Using the APIs
 
-Você pode importar a _collection_ do Insomnia localizado neste repositório ou utilizar os comandos abaixo direto no terminal.
-**Necessita de curl instalado!**
+You can import the _Insomnia_ collection located in this repository or use the commands below directly in the terminal.  
+**curl must be installed!**
 
-#### Criando _account_
+#### Creating an _Account_
 
 ```bash
 curl --request POST \
@@ -59,44 +60,44 @@ curl --request POST \
 }'
 ```
 
-#### Buscando _account_ por _id_
+#### Get _account_ by _id_
 
 ```bash
 curl --request GET \
-  --url http://localhost:8080/v1/accounts/seu-uuid-aqui
+  --url http://localhost:8080/v1/accounts/you-uuid-here
 ```
 
-#### Criando _transaction_ para _account_
+#### Creating _transaction_ for an _account_
 
 ```bash
 curl --request POST \
   --url http://localhost:8080/v1/transactions \
   --header 'Content-Type: application/json' \
   --data '{
-	"accountId": "seu-uuid-aqui",
+	"accountId": "you-uuid-here",
 	"operationTypeId": 1,
 	"amount": -5.00
 }'
 ```
 
 
-## Testes:
+## Tests:
 
-### Integração com db:
+### Integrated:
 ```bash
 make run-db-tests
 ```
 
-### Unitários:
+### Unit:
 ```bash
 make run-unit-tests
 ```
 
-## Arquitetura
+## Architecture
 
 ![image info](./assets/arch.png)
 
-## Tecnologias usadas
+## Technologies used
 - Docker
 - Golang (1.20)
 - Kafka
@@ -105,30 +106,28 @@ make run-unit-tests
 - sqlc + pgx/v5
 - gomock(uber)
 
-## Escolhas técnicas
+## Technical Choices
 
 ### Hexagonal
-Este _design_ de arquitetura nos ajuda com a testabilidade e flexibilidade da nossa aplicação, possibilitando uma atenção maior
- ao seu domínio sem preocupações com o que está fora dele.
- 
-### Microservice
+This architectural design helps with the testability and flexibility of our application, allowing greater focus on the domain without concerns about external components.
 
-Arquitetura escolhida pela escabilidade, modularidade, elasticidade, tolerância a falhas, testabilidade e confiabilidade.
+### Microservices
 
-### Api-Gateway
+This architecture was chosen for its scalability, modularity, elasticity, fault tolerance, testability, and reliability.
 
-Uma Api-Gateway entrega muitas vantagens, neste pequeno projeto serve para direcionar as _requests_ para o _microservice_ adequado.
+### API-Gateway
 
-### Dinheiro do tipo...INTEGER!
+An API-Gateway provides many advantages. In this small project, it serves to route _requests_ to the appropriate _microservice_.
 
-Como estamos lidando com real e centavos (ou quaisquer que sejam os equivalentes), e eles geralmente são representados por um número decimal, pode parecer óbvio usar float ou decimal, pois eles são projetados para representar números que incluem casas decimais. No entanto, se você entender um pouco sobre como float funciona no nível do hardware, verá por que essa não é a melhor abordagem.
+### Money as INTEGER!
+
+Since we are dealing with currency (real and cents or their equivalents), typically represented by a decimal number, it might seem obvious to use float or decimal because they are designed to represent numbers with decimal places. However, if you understand how float works at the hardware level, you'll see why this is not the best approach.
 
 ![image info](./assets/golang_float.png)
 
-Você pode rodar o exemplo [aqui](https://go.dev/play/p/IrhUSV1CZGC) e também ler mais informações neste ótimo [artigo](https://blog.codeminer42.com/be-cool-dont-use-float-double-for-storing-monetary-values).
+You can run the example [here](https://go.dev/play/p/IrhUSV1CZGC) and read more about it in this excellent [article](https://blog.codeminer42.com/be-cool-dont-use-float-double-for-storing-monetary-values).
 
 ### Event-Driven
-Trabalhar com _microservices_ pode ser muito complexo dependendo do domínio da aplicação. Um dos grandes problemas desta arquitetura são as chamadas síncronas entre serviços, que podem gerar lentidão no sistema como um todo ou folharem devido a problemas de rede. Event-Driven é descrito por Mark Richards e Neal Ford em [Fundamentals of Software Architecture: An Engineering Approach](https://www.goodreads.com/book/show/44144493-fundamentals-of-software-architecture) como uma `arquitetura`. Nesta arquitetura, cada ação gera um evento e este será usado por outra ação que também irá gerar um evento e assim por diante.</p>
+Working with _microservices_ can be very complex depending on the application domain. One of the major challenges of this architecture is synchronous calls between services, which can slow down the system as a whole or fail due to network issues. Event-Driven is described by Mark Richards and Neal Ford in [Fundamentals of Software Architecture: An Engineering Approach](https://www.goodreads.com/book/show/44144493-fundamentals-of-software-architecture) as an `architecture`. In this architecture, each action generates an event, which will be used by another action that also generates an event, and so on.
 
-Devido a esta característica, _microservices_ "casam" bem como uma arquitetura baseada em eventos, pois os erros de rede são drasticamente diminuídos e tudo acontece de forma assíncrona.
-</p>
+Because of this characteristic, _microservices_ align well with an event-driven architecture, as network errors are drastically reduced, and everything happens asynchronously.
