@@ -8,7 +8,7 @@
   * [I Prefer Doing It Myself](#i-prefer-doing-it-myself)
   * [Using the APIs](#using-the-apis)
 - [Tests](#tests)
-  * [Postgres DB Integration](#integrated)
+  * [Postgre DB Integration](#integrated)
   * [Unit Tests](#unit)
 - [Architecture](#architecture)
 - [Technologies Used](#technologies-used)
@@ -101,7 +101,7 @@ make run-unit-tests
 - Docker
 - Golang (1.20)
 - Kafka
-- Postgres
+- Postgre
 - Krakend API-Gateway
 - sqlc + pgx/v5
 - gomock(uber)
